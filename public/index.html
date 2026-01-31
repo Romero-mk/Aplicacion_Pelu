@@ -388,53 +388,58 @@
 
 
 <script>
-async function cargarAuditoria() {
-  const token = localStorage.getItem("token");
-  const base = (typeof API_BASE_URL !== "undefined" && API_BASE_URL) ? API_BASE_URL.replace(/\/$/, '') : window.location.origin;
-  const url = `${base}/api/auditoria`;
-
-  try {
-    const res = await fetch(url, {
-      headers: token ? { "Authorization": `Bearer ${token}` } : {}
-    });
-
-    if (res.status === 404) {
-      console.warn(`Auditoría: 404 en ${url} — verifica que la ruta exista en el backend y el API_BASE_URL.`);
-      return;
-    }
-
+  // helper: parsea JSON sólo si el response tiene application/json, si no devuelve texto bruto
+  async function parseResponse(res) {
     const ct = res.headers.get("content-type") || "";
     const text = await res.text();
-
-    if (!res.ok) {
-      console.warn("cargarAuditoria error:", res.status, text);
-      return;
+    if (ct.includes("application/json")) {
+      try { return JSON.parse(text); } catch (e) { return { __rawText: text }; }
     }
-
-    const payload = ct.includes("application/json") ? JSON.parse(text) : { __rawText: text };
-    const data = Array.isArray(payload) ? payload : (payload.data || []);
-    const tbody = document.querySelector("#tablaAuditoria tbody");
-    if (!tbody) return;
-    tbody.innerHTML = "";
-
-    data.forEach(log => {
-      const fila = `
-        <tr>
-          <td>${log.usuario || ''}</td>
-          <td>${log.rol || ''}</td>
-          <td>${log.accion || ''}</td>
-          <td>${log.servicio || ''}</td>
-          <td>${log.fecha ? new Date(log.fecha).toLocaleString() : ''}</td>
-        </tr>
-      `;
-      tbody.innerHTML += fila;
-    });
-  } catch (err) {
-    console.error("Error cargarAuditoria:", err);
+    return { __rawText: text };
   }
-}
 
-cargarAuditoria();
+  async function cargarAuditoria() {
+    const token = localStorage.getItem("token");
+    const base = (typeof API_BASE_URL !== "undefined" && API_BASE_URL) ? API_BASE_URL.replace(/\/$/, '') : window.location.origin;
+    const url = `${base}/api/auditoria`;
+
+    try {
+      const res = await fetch(url, { headers: token ? { "Authorization": `Bearer ${token}` } : {} });
+
+      if (res.status === 404) {
+        console.warn(`Auditoría: 404 en ${url} — verifica que la ruta exista en el backend y el API_BASE_URL.`);
+        return;
+      }
+
+      const payload = await parseResponse(res);
+
+      if (!res.ok) {
+        console.warn("cargarAuditoria error:", res.status, payload.__rawText || payload);
+        return;
+      }
+
+      const data = Array.isArray(payload) ? payload : (payload.data || []);
+      const tbody = document.querySelector("#tablaAuditoria tbody");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+      data.forEach(log => {
+        const fila = `
+          <tr>
+            <td>${log.usuario || ''}</td>
+            <td>${log.rol || ''}</td>
+            <td>${log.accion || ''}</td>
+            <td>${log.servicio || ''}</td>
+            <td>${log.fecha ? new Date(log.fecha).toLocaleString() : ''}</td>
+          </tr>`;
+        tbody.innerHTML += fila;
+      });
+    } catch (err) {
+      console.error("Error cargarAuditoria:", err);
+    }
+  }
+
+  // Llamar sólo si existe la tabla (evita peticiones innecesarias en index público)
+  if (document.querySelector("#tablaAuditoria")) cargarAuditoria();
 </script>
 <a href="auditoria.html" id="btnAuditoria" style="display:none;" class="btn">Auditoría</a>
 
