@@ -84,7 +84,7 @@
 localStorage.setItem("rol", result.rol);
 localStorage.setItem("token", result.token);
 
-      // Registrar login en auditoría
+      
       fetch(`${API_BASE_URL}/api/auditoria/registrar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -109,7 +109,7 @@ localStorage.setItem("token", result.token);
     localStorage.setItem("rol", "invitado");
     localStorage.setItem("idInvitado", idInvitado);
 
-    // Registrar login como invitado en auditoría
+   
     fetch(`${API_BASE_URL}/api/auditoria/registrar`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

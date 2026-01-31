@@ -40,7 +40,7 @@ router.post("/", async (req, res) => {
       }
     }
 
-    // Allow guest bookings when an idInvitado is provided.
+
     if (!usuarioFinal && idInvitadoFinal) {
       usuarioFinal = `invitado_${idInvitadoFinal}`;
     }
