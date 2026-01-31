@@ -357,27 +357,38 @@
         // registrar auditoria (no bloqueante, con logging y Authorization si existe token)
         const auditPayload = {
           tipo: "solicitud_cita",
-          usuario: usuarioFinal,
-          cuenta: rol,
-          servicio: data.servicio,
+          usuario: usuarioFinal || null,
+          rol: rol || null,          // agregar 'rol' además de 'cuenta' por si el backend lo espera
+          cuenta: rol || null,
+          servicio: data.servicio || null,
           idInvitado: idInvitadoFinal || null
         };
-        const auditHeaders = { "Content-Type": "application/json" };
-        if (token) auditHeaders["Authorization"] = `Bearer ${token}`;
 
-        fetch(`${API_BASE_URL}/api/auditoria/registrar`, {
-          method: "POST",
-          headers: auditHeaders,
-          body: JSON.stringify(auditPayload)
-        })
-        .then(async res => {
-          const text = await res.text();
-          let parsed;
-          try { parsed = JSON.parse(text); } catch(e) { parsed = text; }
-          if (!res.ok) console.warn('Auditoría fallo', res.status, parsed);
-          else console.log('Auditoría registrada', parsed);
-        })
-        .catch(err => console.error('Error registrando auditoria:', err));
+        // validación ligera: no enviar si faltan campos obligatorios
+        if (!auditPayload.tipo || !auditPayload.usuario || !auditPayload.servicio) {
+          console.warn('Auditoría: payload incompleto', auditPayload);
+        } else {
+          const auditHeaders = { "Content-Type": "application/json" };
+          if (token) auditHeaders["Authorization"] = `Bearer ${token}`;
+
+          // envío con logging del request/response para ver el error 400
+          fetch(`${API_BASE_URL}/api/auditoria/registrar`, {
+            method: "POST",
+            headers: auditHeaders,
+            body: JSON.stringify(auditPayload)
+          })
+          .then(async res => {
+            const text = await res.text();
+            let parsed;
+            try { parsed = JSON.parse(text); } catch(e) { parsed = text; }
+            if (!res.ok) {
+              console.warn('Auditoría fallo', res.status, parsed);
+            } else {
+              console.log('Auditoría registrada', parsed);
+            }
+          })
+          .catch(err => console.error('Error registrando auditoria:', err));
+        }
 
         mensajeModal.textContent = "✅ Cita registrada correctamente";
         mensajeModal.style.color = "green";
