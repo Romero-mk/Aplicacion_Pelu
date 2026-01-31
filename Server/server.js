@@ -1,5 +1,6 @@
 const express = require("express");
 const conectarDB = require("./config/db");
+const path = require("path"); 
 require("dotenv").config();
 
 const app = express();
@@ -22,11 +23,18 @@ app.use("/api/auditoria", require("./routes/auditoria"));
 
 
 
-app.listen(3000, "0.0.0.0", () => {
-  console.log("Servidor corriendo en:");
-  console.log(" http://localhost:3000");
+
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "public", "login.html"));
   
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
+});
+
 
 
 
