@@ -174,42 +174,44 @@
 </script>
 
 <script>
-document.getElementById("formCita").addEventListener("submit", async (e) => {
-  e.preventDefault();
+  const formCita = document.getElementById("formCita");
+  if (formCita) {
+    formCita.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-  
-  const usuario = localStorage.getItem("usuario");
-  if (usuario) {
-    document.getElementById("usuarioNombre").textContent = `👤 ${usuario}`;
-  }
+      const usuario = localStorage.getItem("usuario");
+      if (usuario) {
+        document.getElementById("usuarioNombre").textContent = `👤 ${usuario}`;
+      }
 
-  const data = {
-    cliente: document.getElementById("cliente").value,
-    telefono: document.getElementById("telefono").value,
-    servicio: document.getElementById("servicio").value,
-    fecha: document.getElementById("fecha").value,
-    hora: document.getElementById("hora").value
-  };
+      const data = {
+        cliente: document.getElementById("cliente").value,
+        telefono: document.getElementById("telefono").value,
+        servicio: document.getElementById("servicio").value,
+        fecha: document.getElementById("fecha").value,
+        hora: document.getElementById("hora").value
+      };
 
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/citas`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/citas`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+
+        alert(result.msg);
+
+        if (res.ok) {
+          document.getElementById("formCita").reset();
+        }
+
+      } catch (error) {
+        alert("Error al reservar cita");
+      }
     });
-
-    const result = await res.json();
-
-    alert(result.msg);
-
-    if (res.ok) {
-      document.getElementById("formCita").reset();
-    }
-
-  } catch (error) {
-    alert("Error al reservar cita");
   }
-});
 </script>
 
 <script>
@@ -218,12 +220,9 @@ document.getElementById("formCita").addEventListener("submit", async (e) => {
     const usuario = localStorage.getItem("usuario");
     const rol = localStorage.getItem("rol");
     
-    console.log("Usuario:", usuario);
-    console.log("Rol:", rol);
-    console.log("Tipo de rol:", typeof rol);
-    
     if (usuario) {
-      document.getElementById("usuarioNombre").textContent = `👤 ${usuario}`;
+      const usuarioNombreEl = document.getElementById("usuarioNombre");
+      if (usuarioNombreEl) usuarioNombreEl.textContent = `👤 ${usuario}`;
     }
     
     const btnMenuTresPuntos = document.getElementById("btnMenuTresPuntos");
@@ -231,35 +230,28 @@ document.getElementById("formCita").addEventListener("submit", async (e) => {
     const opcionesUsuario = document.getElementById("opcionesUsuario");
     const dropdownMenu = document.getElementById("dropdownMenu");
 
-   
-    if (usuario && btnMenuTresPuntos) {
+    if (btnMenuTresPuntos) {
       btnMenuTresPuntos.style.display = "block";
-      console.log("✓ Mostrando menú de tres puntos");
 
-     
       if (rol === "admin" && opcionesAdmin) {
         opcionesAdmin.style.display = "block";
-        opcionesUsuario.style.display = "none";
-        console.log("✓ Mostrando opciones de admin");
-      } 
-   
-      else if ((usuario && rol !== "invitado") || rol === "invitado") {
-        opcionesUsuario.style.display = "block";
-        opcionesAdmin.style.display = "none";
-        console.log("✓ Mostrando opciones de usuario");
+        if (opcionesUsuario) opcionesUsuario.style.display = "none";
+      } else if ((usuario && rol !== "invitado") || rol === "invitado") {
+        if (opcionesUsuario) opcionesUsuario.style.display = "block";
+        if (opcionesAdmin) opcionesAdmin.style.display = "none";
       }
+
+      btnMenuTresPuntos.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (dropdownMenu) {
+          dropdownMenu.style.display = dropdownMenu.style.display === "none" ? "block" : "none";
+        }
+      });
     }
 
-    
-    btnMenuTresPuntos.addEventListener("click", (e) => {
-      e.stopPropagation();
-      dropdownMenu.style.display = dropdownMenu.style.display === "none" ? "block" : "none";
-    });
-
-   
     document.addEventListener("click", (e) => {
-      if (!e.target.closest("#menuAcciones")) {
-        dropdownMenu.style.display = "none";
+      if (!e.target.closest || !e.target.closest("#menuAcciones")) {
+        if (dropdownMenu) dropdownMenu.style.display = "none";
       }
     });
   });
@@ -272,148 +264,167 @@ document.getElementById("formCita").addEventListener("submit", async (e) => {
   const cerrarModalIndex = document.getElementById("cerrarModalIndex");
   const btnCancelarIndex = document.getElementById("btnCancelarIndex");
 
+  // Agregar comprobaciones para evitar addEventListener sobre null
+  if (btnAbrirModalIndex && modalIndex) {
+    btnAbrirModalIndex.addEventListener("click", () => {
+      modalIndex.style.display = "block";
+    });
+  }
 
-  btnAbrirModalIndex.addEventListener("click", () => {
-    modalIndex.style.display = "block";
-  });
+  if (cerrarModalIndex && modalIndex) {
+    cerrarModalIndex.addEventListener("click", () => {
+      modalIndex.style.display = "none";
+    });
+  }
 
-  cerrarModalIndex.addEventListener("click", () => {
-    modalIndex.style.display = "none";
-  });
-
-
-  btnCancelarIndex.addEventListener("click", () => {
-    modalIndex.style.display = "none";
-  });
-
+  if (btnCancelarIndex && modalIndex) {
+    btnCancelarIndex.addEventListener("click", () => {
+      modalIndex.style.display = "none";
+    });
+  }
 
   window.addEventListener("click", (e) => {
-    if (e.target === modalIndex) {
+    if (modalIndex && e.target === modalIndex) {
       modalIndex.style.display = "none";
     }
   });
-
 
   const formModal = document.getElementById("formCitaModal");
   const mensajeModal = document.getElementById("mensajeModal");
   const fechaModal = document.getElementById("fechaModal");
   const horaModal = document.getElementById("horaModal");
 
-  fechaModal.addEventListener("click", () => {
-    fechaModal.showPicker();
-  });
+  if (fechaModal) {
+    fechaModal.addEventListener("click", () => {
+      fechaModal.showPicker();
+    });
+  }
 
-  horaModal.addEventListener("click", () => {
-    horaModal.showPicker();
-  });
+  if (horaModal) {
+    horaModal.addEventListener("click", () => {
+      horaModal.showPicker();
+    });
+  }
 
-  formModal.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  if (formModal) {
+    formModal.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-    const token = localStorage.getItem("token");
-    const usuario = localStorage.getItem("usuario");
-    const rol = localStorage.getItem("rol");
-    const idInvitado = localStorage.getItem("idInvitado");
+      const token = localStorage.getItem("token");
+      const usuario = localStorage.getItem("usuario");
+      const rol = localStorage.getItem("rol");
+      const idInvitado = localStorage.getItem("idInvitado");
 
 
-    let usuarioFinal = usuario;
-    let idInvitadoFinal = idInvitado;
+      let usuarioFinal = usuario;
+      let idInvitadoFinal = idInvitado;
 
-    if (!usuario && (!token && rol !== "invitado")) {
-      idInvitadoFinal = idInvitadoFinal || `inv_${Date.now()}`;
-      localStorage.setItem("idInvitado", idInvitadoFinal);
-      localStorage.setItem("rol", "invitado");
-      usuarioFinal = `Invitado_${idInvitadoFinal}`;
-    }
-
-    const data = {
-      cliente: document.getElementById("clienteModal").value,
-      telefono: document.getElementById("telefonoModal").value,
-      servicio: document.getElementById("servicioModal").value,
-      fecha: document.getElementById("fechaModal").value,
-      hora: document.getElementById("horaModal").value,
-      usuario: usuarioFinal,
-      idInvitado: idInvitadoFinal || null
-    };
-
-    try {
-      const headers = { "Content-Type": "application/json" };
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
+      if (!usuario && (!token && rol !== "invitado")) {
+        idInvitadoFinal = idInvitadoFinal || `inv_${Date.now()}`;
+        localStorage.setItem("idInvitado", idInvitadoFinal);
+        localStorage.setItem("rol", "invitado");
+        usuarioFinal = `Invitado_${idInvitadoFinal}`;
       }
 
-      const res = await fetch(`${API_BASE_URL}/api/citas`, {
-        method: "POST",
-        headers: headers,
-        body: JSON.stringify(data)
-      });
+      const data = {
+        cliente: document.getElementById("clienteModal").value,
+        telefono: document.getElementById("telefonoModal").value,
+        servicio: document.getElementById("servicioModal").value,
+        fecha: document.getElementById("fechaModal").value,
+        hora: document.getElementById("horaModal").value,
+        usuario: usuarioFinal,
+        idInvitado: idInvitadoFinal || null
+      };
 
-      const result = await res.json();
+      try {
+        const headers = { "Content-Type": "application/json" };
+        if (token) headers["Authorization"] = `Bearer ${token}`;
 
-      if (!res.ok) {
-        mensajeModal.textContent = result.msg;
+        const res = await fetch(`${API_BASE_URL}/api/citas`, {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify(data)
+        });
+
+        const result = await parseResponse(res);
+
+        if (!res.ok) {
+          mensajeModal.textContent = result.msg || result.__rawText || `Error ${res.status}`;
+          mensajeModal.style.color = "red";
+          return;
+        }
+
+        // registrar auditoria (no bloqueante)
+        const servicio = data.servicio;
+        fetch(`${API_BASE_URL}/api/auditoria/registrar`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            tipo: "solicitud_cita",
+            usuario: usuarioFinal,
+            cuenta: rol,
+            servicio: servicio,
+            idInvitado: idInvitadoFinal || null
+          })
+        }).catch(err => console.log("Error registrando auditoria:", err));
+
+        mensajeModal.textContent = "✅ Cita registrada correctamente";
+        mensajeModal.style.color = "green";
+        formModal.reset();
+
+        setTimeout(() => {
+          modalIndex.style.display = "none";
+          mensajeModal.textContent = "";
+        }, 2000);
+
+      } catch (error) {
+        mensajeModal.textContent = "❌ Error de conexión";
         mensajeModal.style.color = "red";
-        return;
+        console.error(error);
       }
-
-     
-      const servicio = data.servicio;
-      fetch(`${API_BASE_URL}/api/auditoria/registrar`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          tipo: "solicitud_cita",
-          usuario: usuario,
-          cuenta: rol,
-          servicio: servicio,
-          idInvitado: idInvitado || null
-        })
-      }).catch(err => console.log("Error registrando auditoria:", err));
-
-      mensajeModal.textContent = "✅ Cita registrada correctamente";
-      mensajeModal.style.color = "green";
-      formModal.reset();
-
-      setTimeout(() => {
-        modalIndex.style.display = "none";
-        mensajeModal.textContent = "";
-      }, 2000);
-
-    } catch (error) {
-      mensajeModal.textContent = "❌ Error de conexión";
-      mensajeModal.style.color = "red";
-    }
-  });
+    });
+  }
 </script>
 
 
 <script>
 async function cargarAuditoria() {
   const token = localStorage.getItem("token");
+  const base = (typeof API_BASE_URL !== "undefined") ? API_BASE_URL : "";
+  const url = base ? `${base.replace(/\/$/, '')}/api/auditoria` : "/api/auditoria";
 
-  const res = await fetch("/api/auditoria", {
-    headers: {
-      "Authorization": token
+  try {
+    const res = await fetch(url, {
+      headers: token ? { "Authorization": `Bearer ${token}` } : {}
+    });
+
+    const payload = await parseResponse(res);
+
+    if (!res.ok) {
+      console.warn("cargarAuditoria error:", res.status, payload.__rawText || payload);
+      return;
     }
-  });
 
-  const data = await res.json();
+    const data = Array.isArray(payload) ? payload : (payload.data || []);
+    const tbody = document.querySelector("#tablaAuditoria tbody");
+    if (!tbody) return;
+    tbody.innerHTML = "";
 
-  const tbody = document.querySelector("#tablaAuditoria tbody");
-  tbody.innerHTML = "";
-
-  data.forEach(log => {
-    const fila = `
-      <tr>
-        <td>${log.usuario}</td>
-        <td>${log.rol}</td>
-        <td>${log.accion}</td>
-        <td>${log.servicio}</td>
-        <td>${new Date(log.fecha).toLocaleString()}</td>
-      </tr>
-    `;
-    tbody.innerHTML += fila;
-  });
+    data.forEach(log => {
+      const fila = `
+        <tr>
+          <td>${log.usuario || ''}</td>
+          <td>${log.rol || ''}</td>
+          <td>${log.accion || ''}</td>
+          <td>${log.servicio || ''}</td>
+          <td>${log.fecha ? new Date(log.fecha).toLocaleString() : ''}</td>
+        </tr>
+      `;
+      tbody.innerHTML += fila;
+    });
+  } catch (err) {
+    console.error("Error cargarAuditoria:", err);
+  }
 }
 
 cargarAuditoria();
@@ -535,47 +546,59 @@ cargarAuditoria();
 </style>
 
 <script>
- const API_BASE_URL = window.location.origin;
-  console.log('Conectado a:', API_BASE_URL); 
-  let servicioSeleccionado = null;
+ (function(){
+   // No redeclarar API_BASE_URL — usar la existente si está definida
+   const BASE = (typeof API_BASE_URL !== "undefined") ? API_BASE_URL : window.location.origin;
+   console.log('Conectado a:', BASE);
+   let servicioSeleccionado = null;
 
+   function abrirDetalleServicio(codigo, nombre, precio, descripcion) {
+     servicioSeleccionado = codigo;
+     const detalleNombre = document.getElementById("detalleNombre");
+     const detallePrecio = document.getElementById("detallePrecio");
+     const detalleDescripcion = document.getElementById("detalleDescripcion");
+     const modalDetalle = document.getElementById("modalDetalleServicio");
+     if (detalleNombre) detalleNombre.textContent = nombre;
+     if (detallePrecio) detallePrecio.textContent = precio;
+     if (detalleDescripcion) detalleDescripcion.textContent = descripcion;
+     if (modalDetalle) modalDetalle.style.display = "block";
+   }
 
-  function abrirDetalleServicio(codigo, nombre, precio, descripcion) {
-    servicioSeleccionado = codigo;
+   const cerrarDetalle = document.getElementById("cerrarDetalleServicio");
+   if (cerrarDetalle) {
+     cerrarDetalle.addEventListener("click", () => {
+       const modal = document.getElementById("modalDetalleServicio");
+       if (modal) modal.style.display = "none";
+     });
+   }
 
-    document.getElementById("detalleNombre").textContent = nombre;
-    document.getElementById("detallePrecio").textContent = precio;
-    document.getElementById("detalleDescripcion").textContent = descripcion;
-    document.getElementById("modalDetalleServicio").style.display = "block";
-  }
+   const btnReservarServicio = document.getElementById("btnReservarServicio");
+   if (btnReservarServicio) {
+     btnReservarServicio.addEventListener("click", () => {
+       if (servicioSeleccionado) {
+         const servicioModal = document.getElementById("servicioModal");
+         if (servicioModal) servicioModal.value = servicioSeleccionado;
+         const modalDetalle = document.getElementById("modalDetalleServicio");
+         const modalReserva = document.getElementById("modalReservaIndex");
+         if (modalDetalle) modalDetalle.style.display = "none";
+         if (modalReserva) {
+           modalReserva.style.display = "block";
+           modalReserva.scrollIntoView({ behavior: "smooth" });
+         }
+       }
+     });
+   }
 
+   window.addEventListener("click", (e) => {
+     const modalDetalle = document.getElementById("modalDetalleServicio");
+     if (modalDetalle && e.target === modalDetalle) {
+       modalDetalle.style.display = "none";
+     }
+   });
 
-  document.getElementById("cerrarDetalleServicio").addEventListener("click", () => {
-    document.getElementById("modalDetalleServicio").style.display = "none";
-  });
-
-  document.getElementById("btnReservarServicio").addEventListener("click", () => {
-    if (servicioSeleccionado) {
-      
-      document.getElementById("servicioModal").value = servicioSeleccionado;
-      
-  
-      document.getElementById("modalDetalleServicio").style.display = "none";
-      
-      document.getElementById("modalReservaIndex").style.display = "block";
-      
-      
-      document.getElementById("modalReservaIndex").scrollIntoView({ behavior: "smooth" });
-    }
-  });
-
-  
-  window.addEventListener("click", (e) => {
-    const modalDetalle = document.getElementById("modalDetalleServicio");
-    if (e.target === modalDetalle) {
-      modalDetalle.style.display = "none";
-    }
-  });
+   // Exponer función para uso inline (onclick)
+   window.abrirDetalleServicio = abrirDetalleServicio;
+ })();
 </script>
 
 </div>
