@@ -354,19 +354,30 @@
           return;
         }
 
-        // registrar auditoria (no bloqueante)
-        const servicio = data.servicio;
+        // registrar auditoria (no bloqueante, con logging y Authorization si existe token)
+        const auditPayload = {
+          tipo: "solicitud_cita",
+          usuario: usuarioFinal,
+          cuenta: rol,
+          servicio: servicio,
+          idInvitado: idInvitadoFinal || null
+        };
+        const auditHeaders = { "Content-Type": "application/json" };
+        if (token) auditHeaders["Authorization"] = `Bearer ${token}`;
+
         fetch(`${API_BASE_URL}/api/auditoria/registrar`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            tipo: "solicitud_cita",
-            usuario: usuarioFinal,
-            cuenta: rol,
-            servicio: servicio,
-            idInvitado: idInvitadoFinal || null
-          })
-        }).catch(err => console.log("Error registrando auditoria:", err));
+          headers: auditHeaders,
+          body: JSON.stringify(auditPayload)
+        })
+        .then(async res => {
+          const text = await res.text();
+          let parsed;
+          try { parsed = JSON.parse(text); } catch(e) { parsed = text; }
+          if (!res.ok) console.warn('Auditoría fallo', res.status, parsed);
+          else console.log('Auditoría registrada', parsed);
+        })
+        .catch(err => console.error('Error registrando auditoria:', err));
 
         mensajeModal.textContent = "✅ Cita registrada correctamente";
         mensajeModal.style.color = "green";
@@ -388,7 +399,7 @@
 
 
 <script>
-  // helper: parsea JSON sólo si el response tiene application/json, si no devuelve texto bruto
+  
   async function parseResponse(res) {
     const ct = res.headers.get("content-type") || "";
     const text = await res.text();
