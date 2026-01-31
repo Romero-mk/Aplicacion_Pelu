@@ -16,3 +16,22 @@ async function debugFetch(url, opts = {}) {
     throw err;
   }
 }
+
+// Ejecutar en la consola del navegador
+(async () => {
+  const token = localStorage.getItem("token");
+  const payload = {
+    tipo: "solicitud_cita",
+    usuario: localStorage.getItem("usuario") || "test",
+    cuenta: localStorage.getItem("rol") || "invitado",
+    servicio: "Corte", // ajustar según el servicio real
+    idInvitado: null
+  };
+  const headers = { "Content-Type": "application/json" };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  await debugFetch(`${window.API_BASE_URL}/api/auditoria/registrar`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(payload)
+  });
+})();
