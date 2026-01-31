@@ -135,8 +135,7 @@
   <div class="login-card" style="max-width: 100%;">
     <img src="/img/LOGO.jpeg" alt="LOGO" class="logo" style="margin: 0 auto; width: 80px; height: auto;">
     <h2 style="text-align: center; margin-top: 20px;">👑 Panel de Auditoría</h2>
-    
-    <!-- Estadísticas -->
+ 
     <div class="stats-grid">
       <div class="stat-card">
         <h3>Total de Registros</h3>
@@ -152,11 +151,11 @@
       </div>
     </div>
 
-    <!-- Servicios más solicitados -->
+  
     <h3 style="margin-top: 30px; color: #ff00aa;">📊 Servicios Más Solicitados</h3>
     <div id="serviciosMasPopulares" style="margin-bottom: 30px;"></div>
 
-    <!-- Filtros -->
+   
     <h3 style="color: #ff00aa; margin-top: 30px;">🔍 Historial de Auditoría</h3>
     <div class="filtros">
       <select id="filtroTipo">
@@ -173,7 +172,7 @@
       <button onclick="limpiarFiltros()" style="background: #666;">Limpiar</button>
     </div>
 
-    <!-- Tabla de Auditoría -->
+
     <table class="tabla-auditoria">
       <thead>
         <tr>
@@ -199,6 +198,8 @@
 </div>
 
 <script>
+  const API_BASE_URL = window.location.origin;
+  console.log('Conectado a:', API_BASE_URL);
   const token = localStorage.getItem("token");
   const usuario = localStorage.getItem("usuario");
   const rol = localStorage.getItem("rol");
@@ -207,7 +208,7 @@
     document.getElementById("usuarioNombre").textContent = `👤 ${usuario}`;
   }
 
-  // Verificar que sea admin
+
   if (!token || rol !== "admin") {
     alert("❌ Solo administradores pueden acceder a este módulo");
     window.location.href = "index.html";
@@ -254,7 +255,7 @@
       document.getElementById("loginsHoy").textContent = stats.loginsHoy;
       document.getElementById("usuariosUnicos").textContent = stats.usuariosUnicos;
 
-      // Mostrar servicios más populares
+     
       if (stats.citasPorServicio.length > 0) {
         let html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">';
         stats.citasPorServicio.forEach(item => {
@@ -328,11 +329,11 @@
     mostrarLogs(todosLosLogs);
   }
 
-  // Cargar datos al abrir la página
+  
   cargarAuditoria();
   cargarEstadisticas();
 
-  // Actualizar cada 30 segundos
+ 
   setInterval(() => {
     cargarAuditoria();
     cargarEstadisticas();
