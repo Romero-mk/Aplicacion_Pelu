@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auditoría - Panel Admin</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="api-config.js"></script>
+  <style>
+    .auditoria-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+    
+    .stat-card {
+      background: rgba(255, 0, 170, 0.1);
+      border-left: 4px solid #ff00aa;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    
+    .stat-card h3 {
+      margin: 0 0 10px 0;
+      color: #ff00aa;
+      font-size: 0.9rem;
+    }
+    
+    .stat-card .numero {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #fff;
+    }
+    
+    .tabla-auditoria {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .tabla-auditoria thead {
+      background: rgba(255, 0, 170, 0.2);
+    }
+    
+    .tabla-auditoria th {
+      padding: 15px;
+      text-align: left;
+      color: #ff00aa;
+      font-weight: bold;
+      border-bottom: 2px solid #ff00aa;
+    }
+    
+    .tabla-auditoria td {
+      padding: 12px 15px;
+      border-bottom: 1px solid rgba(255, 0, 170, 0.1);
+    }
+    
+    .tabla-auditoria tr:hover {
+      background: rgba(255, 0, 170, 0.05);
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+    
+    .badge-login {
+      background: rgba(76, 175, 80, 0.2);
+      color: #4caf50;
+    }
+    
+    .badge-cita {
+      background: rgba(33, 150, 243, 0.2);
+      color: #2196f3;
+    }
+    
+    .badge-usuario {
+      background: rgba(156, 39, 176, 0.2);
+      color: #9c27b0;
+    }
+    
+    .badge-invitado {
+      background: rgba(255, 152, 0, 0.2);
+      color: #ff9800;
+    }
+    
+    .filtros {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .filtros select, .filtros input {
+      padding: 8px 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid #ff00aa;
+      border-radius: 4px;
+      color: #fff;
+    }
+    
+    .filtros button {
+      padding: 8px 20px;
+      background: #ff00aa;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="user-info">
+    <span id="usuarioNombre">Usuario</span>
+    <a href="logout.html" class="btn-logout">Cerrar sesión</a>
+  </div>
+</div>
+
+<div class="auditoria-container">
+  <div class="login-card" style="max-width: 100%;">
+    <img src="/img/LOGO.jpeg" alt="LOGO" class="logo" style="margin: 0 auto; width: 80px; height: auto;">
+    <h2 style="text-align: center; margin-top: 20px;">👑 Panel de Auditoría</h2>
+    
+    <!-- Estadísticas -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Total de Registros</h3>
+        <div class="numero" id="totalLogs">0</div>
+      </div>
+      <div class="stat-card">
+        <h3>Logins Hoy</h3>
+        <div class="numero" id="loginsHoy">0</div>
+      </div>
+      <div class="stat-card">
+        <h3>Usuarios Únicos</h3>
+        <div class="numero" id="usuariosUnicos">0</div>
+      </div>
+    </div>
+
+    <!-- Servicios más solicitados -->
+    <h3 style="margin-top: 30px; color: #ff00aa;">📊 Servicios Más Solicitados</h3>
+    <div id="serviciosMasPopulares" style="margin-bottom: 30px;"></div>
+
+    <!-- Filtros -->
+    <h3 style="color: #ff00aa; margin-top: 30px;">🔍 Historial de Auditoría</h3>
+    <div class="filtros">
+      <select id="filtroTipo">
+        <option value="">Todos los tipos</option>
+        <option value="login">Login</option>
+        <option value="solicitud_cita">Solicitud de Cita</option>
+      </select>
+      <select id="filtroCuenta">
+        <option value="">Todas las cuentas</option>
+        <option value="usuario">Usuario</option>
+        <option value="invitado">Invitado</option>
+      </select>
+      <button onclick="aplicarFiltros()">Filtrar</button>
+      <button onclick="limpiarFiltros()" style="background: #666;">Limpiar</button>
+    </div>
+
+    <!-- Tabla de Auditoría -->
+    <table class="tabla-auditoria">
+      <thead>
+        <tr>
+          <th>Fecha y Hora</th>
+          <th>Usuario</th>
+          <th>Tipo de Cuenta</th>
+          <th>Acción</th>
+          <th>Servicio</th>
+          <th>Detalles</th>
+        </tr>
+      </thead>
+      <tbody id="cuerpoTabla">
+        <tr>
+          <td colspan="6" style="text-align: center; padding: 30px;">Cargando...</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
+      <a href="index.html" class="btn">Volver al Inicio</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  const token = localStorage.getItem("token");
+  const usuario = localStorage.getItem("usuario");
+  const rol = localStorage.getItem("rol");
+  
+  if (usuario) {
+    document.getElementById("usuarioNombre").textContent = `👤 ${usuario}`;
+  }
+
+  // Verificar que sea admin
+  if (!token || rol !== "admin") {
+    alert("❌ Solo administradores pueden acceder a este módulo");
+    window.location.href = "index.html";
+  }
+
+  let todosLosLogs = [];
+
+  async function cargarAuditoria() {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/auditoria/historial`, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (!res.ok) {
+        throw new Error("Error al cargar auditoría");
+      }
+
+      todosLosLogs = await res.json();
+      mostrarLogs(todosLosLogs);
+      
+    } catch (err) {
+      document.getElementById("cuerpoTabla").innerHTML = '<tr><td colspan="6">Error cargando auditoría</td></tr>';
+      console.error(err);
+    }
+  }
+
+  async function cargarEstadisticas() {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/auditoria/estadisticas`, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (!res.ok) {
+        throw new Error("Error al cargar estadísticas");
+      }
+
+      const stats = await res.json();
+      
+      document.getElementById("totalLogs").textContent = stats.totalLogs;
+      document.getElementById("loginsHoy").textContent = stats.loginsHoy;
+      document.getElementById("usuariosUnicos").textContent = stats.usuariosUnicos;
+
+      // Mostrar servicios más populares
+      if (stats.citasPorServicio.length > 0) {
+        let html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">';
+        stats.citasPorServicio.forEach(item => {
+          html += `
+            <div style="background: rgba(255, 0, 170, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid #ff00aa;">
+              <strong>${item._id || 'Sin servicio'}</strong><br>
+              <span style="color: #ff00aa; font-size: 1.5rem;">${item.cantidad}</span> solicitudes
+            </div>
+          `;
+        });
+        html += '</div>';
+        document.getElementById("serviciosMasPopulares").innerHTML = html;
+      }
+      
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  function mostrarLogs(logs) {
+    const tbody = document.getElementById("cuerpoTabla");
+    
+    if (!Array.isArray(logs) || logs.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">No hay registros</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = logs.map(log => {
+      const fecha = new Date(log.fecha).toLocaleDateString('es-ES');
+      const hora = new Date(log.fecha).toLocaleTimeString('es-ES');
+      
+      let badgeTipo = `<span class="badge badge-${log.tipo}">${log.tipo === 'login' ? '🔐 Login' : '📅 Cita'}</span>`;
+      let badgeCuenta = `<span class="badge badge-${log.cuenta}">${log.cuenta === 'usuario' ? '👤 Usuario' : '🎫 Invitado'}</span>`;
+      
+      const servicio = log.servicio ? `<strong>${log.servicio}</strong>` : '-';
+      const idInvitado = log.idInvitado ? `<small>${log.idInvitado}</small>` : '';
+
+      return `
+        <tr>
+          <td><small>${fecha} ${hora}</small></td>
+          <td><strong>${log.usuario}</strong></td>
+          <td>${badgeCuenta}</td>
+          <td>${badgeTipo}</td>
+          <td>${servicio}</td>
+          <td>${idInvitado}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function aplicarFiltros() {
+    const tipo = document.getElementById("filtroTipo").value;
+    const cuenta = document.getElementById("filtroCuenta").value;
+
+    let filtrados = todosLosLogs;
+
+    if (tipo) {
+      filtrados = filtrados.filter(log => log.tipo === tipo);
+    }
+
+    if (cuenta) {
+      filtrados = filtrados.filter(log => log.cuenta === cuenta);
+    }
+
+    mostrarLogs(filtrados);
+  }
+
+  function limpiarFiltros() {
+    document.getElementById("filtroTipo").value = "";
+    document.getElementById("filtroCuenta").value = "";
+    mostrarLogs(todosLosLogs);
+  }
+
+  // Cargar datos al abrir la página
+  cargarAuditoria();
+  cargarEstadisticas();
+
+  // Actualizar cada 30 segundos
+  setInterval(() => {
+    cargarAuditoria();
+    cargarEstadisticas();
+  }, 30000);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Citas Registradas</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="api-config.js"></script>
+</head>
+<body>
+
+<!-- Botón Volver Flotante -->
+<div style="position: fixed; top: 20px; left: 20px; z-index: 1000;">
+  <a href="index.html" style="
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #d4af37, #ffd700);
+    color: #000000;
+    padding: 10px 20px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+  "
+  onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(212, 175, 55, 0.4)'"
+  onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(212, 175, 55, 0.3)'"
+  >
+    ← Volver
+  </a>
+</div>
+
+<div class="top-bar">
+  <div class="user-info">
+    <span id="usuarioNombre">Usuario</span>
+  </div>
+</div>
+
+<div class="login-page">
+  <div class="login-card">
+    <img src="/img/LOGO.jpeg" alt="LOGO" class="logo">
+    <h2>Citas Registradas</h2>
+    <p id="tituloCitas" style="text-align: center; color: #ff00aa; font-size: 0.9rem; margin-bottom: 15px;"></p>
+
+    <div id="listaCitas" class="citas-list">
+      <p>Cargando...</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  
+
+  const usuario = localStorage.getItem("usuario");
+  const rol = localStorage.getItem("rol");
+  
+  if (usuario) {
+    document.getElementById("usuarioNombre").textContent = `👤 ${usuario}`;
+  }
+
+
+  if (rol === "admin") {
+    document.getElementById("tituloCitas").textContent = "👑 Viendo TODAS las citas (Admin)";
+  } else if (rol === "invitado") {
+    document.getElementById("tituloCitas").textContent = "📝 Tus citas";
+  } else {
+    document.getElementById("tituloCitas").textContent = "📝 Mis citas";
+  }
+
+  async function cargarCitas() {
+    try {
+      const token = localStorage.getItem("token");
+      const usuario = localStorage.getItem("usuario");
+      const rol = localStorage.getItem("rol");
+      const idInvitado = localStorage.getItem("idInvitado");
+
+      let url = `${API_BASE_URL}/api/citas/publico`;
+      let headers = { "Content-Type": "application/json" };
+
+      // Si es admin, obtener todas las citas
+      if (rol === "admin" && token) {
+        url = `${API_BASE_URL}/api/citas/todas`;
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+      // Si es invitado, pasar su ID único
+      else if (rol === "invitado" && idInvitado) {
+        url = `${API_BASE_URL}/api/citas/publico?idInvitado=${idInvitado}`;
+      }
+      // Si es usuario autenticado, obtener solo sus citas
+      else if (token && usuario && rol !== "invitado") {
+        url = `${API_BASE_URL}/api/citas/mis-citas`;
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const res = await fetch(url, { headers });
+
+      if (!res.ok) {
+        throw new Error("Error al cargar citas");
+      }
+
+      const citas = await res.json();
+
+      const lista = document.getElementById("listaCitas");
+      lista.innerHTML = "";
+
+      // Validación adicional para usuarios autenticados
+      let citasFiltradas = citas;
+      if (token && usuario && rol !== "invitado" && rol !== "admin") {
+        citasFiltradas = citas.filter(cita => cita.usuario === usuario);
+      }
+
+      if (!Array.isArray(citasFiltradas) || citasFiltradas.length === 0) {
+        const titulo = rol === "invitado" ? "No tienes citas registradas" : (rol === "admin" ? "No hay citas registradas" : "No tienes citas registradas");
+        lista.innerHTML = `<p>${titulo}</p>`;
+        return;
+      }
+
+      const ul = document.createElement('ul');
+      ul.style.listStyle = 'none';
+      ul.style.padding = '0';
+
+      
+      const citasPorFecha = {};
+      citasFiltradas.forEach(cita => {
+        if (!citasPorFecha[cita.fecha]) {
+          citasPorFecha[cita.fecha] = [];
+        }
+        citasPorFecha[cita.fecha].push(cita);
+      });
+
+    
+      const hoy = new Date().toISOString().split('T')[0];
+
+      
+      const fechasOrdenadas = Object.keys(citasPorFecha).sort((a, b) => {
+        if (a === hoy) return -1;
+        if (b === hoy) return 1;
+        return a.localeCompare(b);
+      });
+
+      fechasOrdenadas.forEach(fecha => {
+   
+        const fechaDiv = document.createElement("div");
+        fechaDiv.style.marginTop = '20px';
+        fechaDiv.style.marginBottom = '15px';
+        fechaDiv.style.padding = '12px 15px';
+        fechaDiv.style.backgroundColor = 'rgba(255, 0, 170, 0.15)';
+        fechaDiv.style.borderLeft = '4px solid #ff00aa';
+        fechaDiv.style.borderRadius = '4px';
+        
+        const etiquetaFecha = fecha === hoy ? `${fecha} (Hoy)` : fecha;
+        fechaDiv.innerHTML = `<strong>📅 Citas para el ${etiquetaFecha}</strong>`;
+        ul.appendChild(fechaDiv);
+
+       
+        citasPorFecha[fecha].forEach(cita => {
+          const li = document.createElement("li");
+          li.style.padding = '15px';
+          li.style.marginBottom = '10px';
+          li.style.backgroundColor = 'rgba(255,255,255,0.02)';
+          li.style.borderRadius = '8px';
+          li.style.marginLeft = '10px';
+          
+          li.innerHTML = `
+            <div style="margin-bottom: 5px;"><strong>Cliente:</strong> ${cita.cliente}</div>
+            <div style="margin-bottom: 5px;"><strong>Teléfono:</strong> ${cita.telefono}</div>
+            <div style="margin-bottom: 5px;"><strong>Servicio:</strong> ${cita.servicio}</div>
+            <div style="margin-bottom: 5px;"><strong>Hora:</strong> ${cita.hora}</div>
+          `;
+          ul.appendChild(li);
+        });
+      });
+
+      lista.appendChild(ul);
+    } catch (err) {
+      document.getElementById("listaCitas").innerHTML = '<p>Error cargando citas</p>';
+      console.error(err);
+    }
+  }
+
+  cargarCitas();
+</script>
+
+</body>
+</html>
+
+

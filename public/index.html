@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Peluquería ISABELLA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <script src="api-config.js"></script>
+</head>
+
+<body>
+
+<div class="top-bar">
+  <div class="user-info">
+    <span id="usuarioNombre">Usuario</span>
+  </div>
+</div>
+
+  <header class="header">
+     <img src="/img/LOGO.jpeg" alt="LOGO">
+
+    <h1>ISABELLA</h1>
+    <p>Tu imagen, nuestra pasión</p>
+    <button id="btnAbrirModalIndex" class="btn">Reservar cita</button>
+  </header>
+
+  <h2 style="text-align: center; color: #ffffff; font-size: 2rem; margin: 2rem 0;">Servicios</h2>
+   <h1 style="text-align: center; color: #ffffff; font-size: 2rem; margin: 2rem 0;">El Valor de todos los Precios Pueden Variar Dependiendo de la Realizacion De Cada Servicio</h1>
+  <section class="services">
+ 
+  <div class="grid">
+    
+
+    <div class="card" onclick="abrirDetalleServicio('Corte', 'Corte Hombre', 5, 'Cortes modernos y clásicos para hombre. Estilos personalizados con las últimas tendencias.')">
+      <img src=https://i.pinimg.com/736x/d8/48/07/d8480796cd1a3677901b9df3ea37cd70.jpg alt="Corte">
+      <h3>Corte Hombre $5</h3>
+      <p>Cortes modernos y clásicos.</p>
+    </div>
+    <div class="card" onclick="abrirDetalleServicio('Corte', 'Corte Mujer', 6, 'Cortes modernos y clásicos para mujer. Diseños elegantes y personalizados.')">
+      <img src=https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSncma8SHAcBeQYJEs-dxQbvmma5_ibu4Ckuw&salt="Corte">
+      <h3>Corte Mujer $6</h3>
+      <p>Cortes modernos y clásicos.</p>
+    </div>
+
+
+    <div class="card" onclick="abrirDetalleServicio('Peinado', 'Peinado', 7, 'Peinados profesionales para eventos y ocasiones especiales. Diseños únicos y personalizados.')">
+      <img src=https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQeoeVWboei49uzLjZrfULh41MRlNkblEsANA&salt="Peinado">
+      <h3>Peinado $7</h3>
+      <p>Para eventos y ocasiones especiales.</p>
+    </div>
+
+    <div class="card" onclick="abrirDetalleServicio('Tinte', 'Tintes', 25, 'Tintes profesionales y técnicas de balayage. Colores vibrantes y naturales.')">
+      <img src=https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTT9FJC_kApU0fr5etB1CY8jLVyKWFdzTU2KA&s="Coloración">
+     <h3>Tintes $25</h3>
+      <p>Tintes profesionales y balayage.</p>
+    </div>
+
+    <div class="card" onclick="abrirDetalleServicio('Tratamiento', 'Tratamientos', 15, 'Tratamientos capilares profesionales. Hidratación profunda y cuidado especializado.')">
+      <img src= https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbxho719U6M3u9-Lsx3doE-LomPAaNjX6tYQ&salt="Tratamientos">
+      <h3>Tratamientos $15</h3>
+      <p>Hidratación y cuidado capilar.</p>
+    </div>
+    <div class="card" onclick="abrirDetalleServicio('Manicure', 'Manicure', 5, 'Diseños básicos o personalizados. Uñas bellas y saludables.')">
+      <img src=https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRP7F2UlbyG_BHdwmEKqiDfxMDB2SRbbloKlQ&s alt="Corte">
+      <h3>Manicure $5</h3>
+      <p>Diseños basicos o personalizados.</p>
+    </div>
+     <div class="card" onclick="abrirDetalleServicio('Depilación', 'Depilación', 3, 'Depilación profesional de cuerpo completo. Técnicas seguras y efectivas.')">
+      <img src=https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQLNfjgT_k6FOIoVX8fbTvNF9arn5Q5bWUtGw&s alt="Corte">
+      <h3>Depilacion $3</h3>
+      <p>Depilacion  de cuerpo completo.</p>
+    </div>
+  </div>
+</section>
+
+
+<section id="citas" class="appointment">
+<h2 style="text-align: center; color: #ffffff; font-size: 2rem; margin: 2rem 0;">Reserva tu cita  😊</h2>
+
+<div style="
+  max-width: 600px;
+  margin: 3rem auto;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(255, 0, 170, 0.1));
+  border: 2px solid #d4af37;
+  border-radius: 15px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(212, 175, 55, 0.2);
+  backdrop-filter: blur(10px);
+">
+  <h2 style="color: #d4af37; font-size: 1.5rem; margin-bottom: 1rem;">⏰ Horario de Atención</h2>
+  <div style="
+    background: rgba(0, 0, 0, 0.4);
+    border-left: 4px solid #ff00aa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+  ">
+    <p style="color: #ffffff; font-size: 1.1rem; font-weight: 600; margin: 0.5rem 0;">
+      📅 Lunes a Sábado
+    </p>
+    <p style="color: #d4af37; font-size: 1.3rem; font-weight: bold; margin: 0.5rem 0;">
+      9:00 AM - 8:20 PM
+    </p>
+  </div>
+  <p style="color: #cbd5e1; font-size: 0.95rem; margin-top: 1rem; font-style: italic;">
+    ¡Ven y disfruta de nuestros servicios de calidad! ✨
+  </p>
+</div>
+ 
+</section>
+
+
+<div id="modalDetalleServicio" class="modal">
+  <div class="modal-contenido" style="max-width: 500px;">
+    <div class="modal-header">
+      <h3 id="detalleNombre">Servicio</h3>
+      <span class="cerrar" id="cerrarDetalleServicio">&times;</span>
+    </div>
+    <div style="padding: 20px;">
+      <img id="detalleImagen" src="" alt="Servicio" style="width: 100%; height: 300px; object-fit: cover; border-radius: 10px; margin-bottom: 15px;">
+      <p id="detalleDescripcion" style="color: #ffffff; font-size: 1rem; line-height: 1.6; margin-bottom: 15px;"></p>
+      <div style="background: rgba(212, 175, 55, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid #d4af37; margin-bottom: 20px;">
+        <p style="color: #d4af37; font-weight: bold; margin: 0;">
+          Precio: $<span id="detallePrecio">0</span>
+        </p>
+      </div>
+      <button id="btnReservarServicio" class="btn" style="width: 100%;">
+        ✨ Reservar este servicio
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="modalReservaIndex" class="modal">
+  <div class="modal-contenido">
+    <div class="modal-header">
+      <h3>Formulario de Reserva</h3>
+      <span class="cerrar" id="cerrarModalIndex">&times;</span>
+    </div>
+
+  <form id="formCitaModal" class="form-cita">
+  <input type="text" id="clienteModal" placeholder="Nombre del cliente" required>
+  <input type="tel" id="telefonoModal" placeholder="Teléfono" required>
+
+  <select id="servicioModal" required>
+    <option value="">Seleccione servicio</option>
+    <option value="Corte">Corte</option>
+    <option value="Peinado">Peinado</option>
+    <option value="Tinte">Coloración</option>
+    <option value="Tratamiento">Tratamiento</option>
+    <option value="Manicure">Manicure</option>
+    <option value="Depilación">Depilación</option>
+  </select>
+
+  <input type="date" id="fechaModal"  required>
+  <input type="time" id="horaModal" required>
+  
+
+
+  <div class="modal-acciones">
+    <button type="submit" class="btn">Reservar cita</button>
+    <button type="button" class="btn-cancelar" id="btnCancelarIndex">Cancelar</button>
+  </div>
+</form>
+
+
+    <p id="mensajeModal"></p>
+  </div>
+</div>
+
+
+
+</script>
+
+<script>
+document.getElementById("formCita").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  
+  const usuario = localStorage.getItem("usuario");
+  if (usuario) {
+    document.getElementById("usuarioNombre").textContent = `👤 ${usuario}`;
+  }
+
+  const data = {
+    cliente: document.getElementById("cliente").value,
+    telefono: document.getElementById("telefono").value,
+    servicio: document.getElementById("servicio").value,
+    fecha: document.getElementById("fecha").value,
+    hora: document.getElementById("hora").value
+  };
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/citas`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+
+    const result = await res.json();
+
+    alert(result.msg);
+
+    if (res.ok) {
+      document.getElementById("formCita").reset();
+    }
+
+  } catch (error) {
+    alert("Error al reservar cita");
+  }
+});
+</script>
+
+<script>
+
+  window.addEventListener("DOMContentLoaded", () => {
+    const usuario = localStorage.getItem("usuario");
+    const rol = localStorage.getItem("rol");
+    
+    console.log("Usuario:", usuario);
+    console.log("Rol:", rol);
+    console.log("Tipo de rol:", typeof rol);
+    
+    if (usuario) {
+      document.getElementById("usuarioNombre").textContent = `👤 ${usuario}`;
+    }
+    
+    const btnMenuTresPuntos = document.getElementById("btnMenuTresPuntos");
+    const opcionesAdmin = document.getElementById("opcionesAdmin");
+    const opcionesUsuario = document.getElementById("opcionesUsuario");
+    const dropdownMenu = document.getElementById("dropdownMenu");
+
+    // Mostrar menú de tres puntos si hay usuario
+    if (usuario && btnMenuTresPuntos) {
+      btnMenuTresPuntos.style.display = "block";
+      console.log("✓ Mostrando menú de tres puntos");
+
+      // Si es admin
+      if (rol === "admin" && opcionesAdmin) {
+        opcionesAdmin.style.display = "block";
+        opcionesUsuario.style.display = "none";
+        console.log("✓ Mostrando opciones de admin");
+      } 
+      // Si es usuario o invitado
+      else if ((usuario && rol !== "invitado") || rol === "invitado") {
+        opcionesUsuario.style.display = "block";
+        opcionesAdmin.style.display = "none";
+        console.log("✓ Mostrando opciones de usuario");
+      }
+    }
+
+    // Controlar apertura/cierre del menú
+    btnMenuTresPuntos.addEventListener("click", (e) => {
+      e.stopPropagation();
+      dropdownMenu.style.display = dropdownMenu.style.display === "none" ? "block" : "none";
+    });
+
+    // Cerrar menú al hacer clic fuera
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest("#menuAcciones")) {
+        dropdownMenu.style.display = "none";
+      }
+    });
+  });
+</script>
+
+<script>
+
+  const modalIndex = document.getElementById("modalReservaIndex");
+  const btnAbrirModalIndex = document.getElementById("btnAbrirModalIndex");
+  const cerrarModalIndex = document.getElementById("cerrarModalIndex");
+  const btnCancelarIndex = document.getElementById("btnCancelarIndex");
+
+
+  btnAbrirModalIndex.addEventListener("click", () => {
+    modalIndex.style.display = "block";
+  });
+
+  cerrarModalIndex.addEventListener("click", () => {
+    modalIndex.style.display = "none";
+  });
+
+
+  btnCancelarIndex.addEventListener("click", () => {
+    modalIndex.style.display = "none";
+  });
+
+
+  window.addEventListener("click", (e) => {
+    if (e.target === modalIndex) {
+      modalIndex.style.display = "none";
+    }
+  });
+
+
+  const formModal = document.getElementById("formCitaModal");
+  const mensajeModal = document.getElementById("mensajeModal");
+  const fechaModal = document.getElementById("fechaModal");
+  const horaModal = document.getElementById("horaModal");
+
+  fechaModal.addEventListener("click", () => {
+    fechaModal.showPicker();
+  });
+
+  horaModal.addEventListener("click", () => {
+    horaModal.showPicker();
+  });
+
+  formModal.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const token = localStorage.getItem("token");
+    const usuario = localStorage.getItem("usuario");
+    const rol = localStorage.getItem("rol");
+    const idInvitado = localStorage.getItem("idInvitado");
+
+    // Prepare final usuario and idInvitado values. If there's no logged user,
+    // allow booking as invitado by generating an id and storing it locally.
+    let usuarioFinal = usuario;
+    let idInvitadoFinal = idInvitado;
+
+    if (!usuario && (!token && rol !== "invitado")) {
+      idInvitadoFinal = idInvitadoFinal || `inv_${Date.now()}`;
+      localStorage.setItem("idInvitado", idInvitadoFinal);
+      localStorage.setItem("rol", "invitado");
+      usuarioFinal = `Invitado_${idInvitadoFinal}`;
+    }
+
+    const data = {
+      cliente: document.getElementById("clienteModal").value,
+      telefono: document.getElementById("telefonoModal").value,
+      servicio: document.getElementById("servicioModal").value,
+      fecha: document.getElementById("fechaModal").value,
+      hora: document.getElementById("horaModal").value,
+      usuario: usuarioFinal,
+      idInvitado: idInvitadoFinal || null
+    };
+
+    try {
+      const headers = { "Content-Type": "application/json" };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const res = await fetch(`${API_BASE_URL}/api/citas`, {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        mensajeModal.textContent = result.msg;
+        mensajeModal.style.color = "red";
+        return;
+      }
+
+     
+      const servicio = data.servicio;
+      fetch(`${API_BASE_URL}/api/auditoria/registrar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tipo: "solicitud_cita",
+          usuario: usuario,
+          cuenta: rol,
+          servicio: servicio,
+          idInvitado: idInvitado || null
+        })
+      }).catch(err => console.log("Error registrando auditoria:", err));
+
+      mensajeModal.textContent = "✅ Cita registrada correctamente";
+      mensajeModal.style.color = "green";
+      formModal.reset();
+
+      setTimeout(() => {
+        modalIndex.style.display = "none";
+        mensajeModal.textContent = "";
+      }, 2000);
+
+    } catch (error) {
+      mensajeModal.textContent = "❌ Error de conexión";
+      mensajeModal.style.color = "red";
+    }
+  });
+</script>
+
+
+<script>
+async function cargarAuditoria() {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch("http://localhost:3000/api/auditoria", {
+    headers: {
+      "Authorization": token
+    }
+  });
+
+  const data = await res.json();
+
+  const tbody = document.querySelector("#tablaAuditoria tbody");
+  tbody.innerHTML = "";
+
+  data.forEach(log => {
+    const fila = `
+      <tr>
+        <td>${log.usuario}</td>
+        <td>${log.rol}</td>
+        <td>${log.accion}</td>
+        <td>${log.servicio}</td>
+        <td>${new Date(log.fecha).toLocaleString()}</td>
+      </tr>
+    `;
+    tbody.innerHTML += fila;
+  });
+}
+
+cargarAuditoria();
+</script>
+<a href="auditoria.html" id="btnAuditoria" style="display:none;" class="btn">Auditoría</a>
+
+
+  
+<div id="menuAcciones" style="position: fixed; top: 80px; right: 30px; z-index: 1000;">
+  <button id="btnMenuTresPuntos" style="
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #ffffff;
+    padding: 10px;
+    display: none;
+  ">⋮</button>
+
+  <div id="dropdownMenu" style="
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 40px;
+    background: #1a1a1a;
+    border: 2px solid #d4af37;
+    border-radius: 8px;
+    min-width: 250px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1001;
+  ">
+    <div id="opcionesUsuario" style="display: none;">
+      <a href="citas.html" style="
+        display: block;
+        padding: 12px 20px;
+        color: #ffffff;
+        text-decoration: none;
+        border-bottom: 1px solid #333;
+        transition: background 0.3s;
+      " 
+      onmouseover="this.style.background='#333'" 
+      onmouseout="this.style.background='transparent'">
+        📅 Ver mis citas
+      </a>
+      <a href="logout.html" style="
+        display: block;
+        padding: 12px 20px;
+        color: #ff6b6b;
+        text-decoration: none;
+        transition: background 0.3s;
+      " 
+      onmouseover="this.style.background='#333'" 
+      onmouseout="this.style.background='transparent'">
+        🚪 Cerrar sesión
+      </a>
+    </div>
+
+    <div id="opcionesAdmin" style="display: none;">
+      <a href="citas.html" style="
+        display: block;
+        padding: 12px 20px;
+        color: #ffffff;
+        text-decoration: none;
+        border-bottom: 1px solid #333;
+        transition: background 0.3s;
+      " 
+      onmouseover="this.style.background='#333'" 
+      onmouseout="this.style.background='transparent'">
+        📅 Ver todas las citas
+      </a>
+      <a href="auditoria.html" style="
+        display: block;
+        padding: 12px 20px;
+        color: #ffffff;
+        text-decoration: none;
+        border-bottom: 1px solid #333;
+        transition: background 0.3s;
+      " 
+      onmouseover="this.style.background='#333'" 
+      onmouseout="this.style.background='transparent'">
+        📊 Panel de Auditoría
+      </a>
+      <a href="logout.html" style="
+        display: block;
+        padding: 12px 20px;
+        color: #ff6b6b;
+        text-decoration: none;
+        transition: background 0.3s;
+      " 
+      onmouseover="this.style.background='#333'" 
+      onmouseout="this.style.background='transparent'">
+        🚪 Cerrar sesión
+      </a>
+    </div>
+  </div>
+</div>
+
+<style>
+  #menuAcciones {
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  #btnMenuTresPuntos:hover {
+    color: #d4af37;
+    transform: scale(1.2);
+    transition: all 0.2s ease;
+  }
+</style>
+
+<script>
+  
+  let servicioSeleccionado = null;
+
+
+  function abrirDetalleServicio(codigo, nombre, precio, descripcion) {
+    servicioSeleccionado = codigo;
+
+    document.getElementById("detalleNombre").textContent = nombre;
+    document.getElementById("detallePrecio").textContent = precio;
+    document.getElementById("detalleDescripcion").textContent = descripcion;
+    document.getElementById("modalDetalleServicio").style.display = "block";
+  }
+
+
+  document.getElementById("cerrarDetalleServicio").addEventListener("click", () => {
+    document.getElementById("modalDetalleServicio").style.display = "none";
+  });
+
+  document.getElementById("btnReservarServicio").addEventListener("click", () => {
+    if (servicioSeleccionado) {
+      
+      document.getElementById("servicioModal").value = servicioSeleccionado;
+      
+  
+      document.getElementById("modalDetalleServicio").style.display = "none";
+      
+      document.getElementById("modalReservaIndex").style.display = "block";
+      
+      
+      document.getElementById("modalReservaIndex").scrollIntoView({ behavior: "smooth" });
+    }
+  });
+
+  
+  window.addEventListener("click", (e) => {
+    const modalDetalle = document.getElementById("modalDetalleServicio");
+    if (e.target === modalDetalle) {
+      modalDetalle.style.display = "none";
+    }
+  });
+</script>
+
+</div>
+    <p>© 2026 ISABELLA</p>
+   
+  </footer>
+
+</body>
+</html>

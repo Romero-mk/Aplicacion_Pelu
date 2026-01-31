@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="api-config.js"></script>
+</head>
+<body>
+
+<div class="login-page">
+  <div class="login-card">
+    <img src="img/logo.png" alt="logo" class="logo" onerror="this.style.display='none'">
+    <h2>Iniciar sesión</h2>
+
+    <form id="loginForm" class="login-form">
+      <label for="usuario">Usuario</label>
+      <input type="text" id="usuario" name="usuario" placeholder="Usuario" required>
+
+      <label for="password">Contraseña</label>
+      <input type="password" id="password" name="password" placeholder="Contraseña" required>
+
+      <button type="submit" class="login-btn">Ingresar</button>
+    </form>
+
+    <div class="login-actions">
+      <a href="/">Volver</a>
+      <a href="register.html">Registrarse</a>
+    </div>
+
+    <div style="margin-top: 1rem; text-align: center;">
+      <button type="button" id="btnInvitado" class="login-btn" style="background: rgba(255, 0, 170, 0.3); border: 1px solid #ff00aa;">Continuar como invitado</button>
+    </div>
+
+    <p id="mensaje" class="error" aria-live="polite"></p>
+  </div>
+</div>
+
+
+<script>
+
+  if (!localStorage.getItem("adminActualizado")) {
+    fetch(`${API_BASE_URL}/api/auth/actualizarAdmin`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" }
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log("Admin actualizado:", data);
+      localStorage.setItem("adminActualizado", "true");
+    })
+    .catch(err => console.log("Info de actualización:", err));
+  }
+</script>
+
+<script>
+  const form = document.getElementById("loginForm");
+  const mensaje = document.getElementById("mensaje");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const data = {
+      usuario: document.getElementById("usuario").value,
+      password: document.getElementById("password").value
+    };
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        mensaje.textContent = result.msg;
+        return;
+      }
+
+     
+      localStorage.setItem("usuario", result.usuario);
+localStorage.setItem("rol", result.rol);
+localStorage.setItem("token", result.token);
+
+      // Registrar login en auditoría
+      fetch(`${API_BASE_URL}/api/auditoria/registrar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tipo: "login",
+          usuario: result.usuario,
+          cuenta: "usuario"
+        })
+      }).catch(err => console.log("Error registrando auditoria:", err));
+     
+      window.location.href = "index.html";
+
+    } catch (error) {
+      mensaje.textContent = "Error de conexión";
+    }
+  });
+
+
+  document.getElementById("btnInvitado").addEventListener("click", async () => {
+    const idInvitado = "invitado_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem("usuario", "Invitado");
+    localStorage.setItem("rol", "invitado");
+    localStorage.setItem("idInvitado", idInvitado);
+
+    // Registrar login como invitado en auditoría
+    fetch(`${API_BASE_URL}/api/auditoria/registrar`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        tipo: "login",
+        usuario: "Invitado",
+        cuenta: "invitado",
+        idInvitado: idInvitado
+      })
+    }).catch(err => console.log("Error registrando auditoria:", err));
+
+    window.location.href = "index.html";
+  });
+</script>
+
+</body>
+</html>
+
