@@ -1,12 +1,12 @@
 const mongoose = require("mongoose");
 
 const LogSchema = new mongoose.Schema({
-  tipo: { type: String, required: true }, // 'login', 'solicitud_cita', etc
-  usuario: { type: String, required: true }, // nombre del usuario o "Invitado"
-  cuenta: { type: String, required: true }, // "usuario" o "invitado"
-  servicio: { type: String, default: null }, // servicio solicitado (si aplica)
-  idInvitado: { type: String, default: null }, // ID del invitado
-  detalles: { type: String, default: null }, // detalles adicionales
+  tipo: { type: String, required: true }, 
+  usuario: { type: String, required: true },
+  cuenta: { type: String, required: true }, 
+  servicio: { type: String, default: null },
+  idInvitado: { type: String, default: null }, 
+  detalles: { type: String, default: null }, 
   fecha: {
     type: Date,
     default: Date.now

@@ -231,18 +231,18 @@ document.getElementById("formCita").addEventListener("submit", async (e) => {
     const opcionesUsuario = document.getElementById("opcionesUsuario");
     const dropdownMenu = document.getElementById("dropdownMenu");
 
-    // Mostrar menú de tres puntos si hay usuario
+   
     if (usuario && btnMenuTresPuntos) {
       btnMenuTresPuntos.style.display = "block";
       console.log("✓ Mostrando menú de tres puntos");
 
-      // Si es admin
+     
       if (rol === "admin" && opcionesAdmin) {
         opcionesAdmin.style.display = "block";
         opcionesUsuario.style.display = "none";
         console.log("✓ Mostrando opciones de admin");
       } 
-      // Si es usuario o invitado
+   
       else if ((usuario && rol !== "invitado") || rol === "invitado") {
         opcionesUsuario.style.display = "block";
         opcionesAdmin.style.display = "none";
@@ -250,13 +250,13 @@ document.getElementById("formCita").addEventListener("submit", async (e) => {
       }
     }
 
-    // Controlar apertura/cierre del menú
+    
     btnMenuTresPuntos.addEventListener("click", (e) => {
       e.stopPropagation();
       dropdownMenu.style.display = dropdownMenu.style.display === "none" ? "block" : "none";
     });
 
-    // Cerrar menú al hacer clic fuera
+   
     document.addEventListener("click", (e) => {
       if (!e.target.closest("#menuAcciones")) {
         dropdownMenu.style.display = "none";
@@ -315,8 +315,7 @@ document.getElementById("formCita").addEventListener("submit", async (e) => {
     const rol = localStorage.getItem("rol");
     const idInvitado = localStorage.getItem("idInvitado");
 
-    // Prepare final usuario and idInvitado values. If there's no logged user,
-    // allow booking as invitado by generating an id and storing it locally.
+
     let usuarioFinal = usuario;
     let idInvitadoFinal = idInvitado;
 
@@ -392,7 +391,7 @@ document.getElementById("formCita").addEventListener("submit", async (e) => {
 async function cargarAuditoria() {
   const token = localStorage.getItem("token");
 
-  const res = await fetch("http://localhost:3000/api/auditoria", {
+  const res = await fetch("/api/auditoria", {
     headers: {
       "Authorization": token
     }
