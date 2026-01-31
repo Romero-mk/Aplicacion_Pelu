@@ -1,4 +1,3 @@
+window.API_BASE_URL = window.API_BASE_URL || "https://aplicacion-pelu-7.onrender.com";
 
-const API_BASE_URL = window.location.origin;
-
-console.log('API Base URL:', API_BASE_URL);
+console.log('API Base URL:', window.API_BASE_URL);
