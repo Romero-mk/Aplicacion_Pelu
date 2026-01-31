@@ -390,21 +390,28 @@
 <script>
 async function cargarAuditoria() {
   const token = localStorage.getItem("token");
-  const base = (typeof API_BASE_URL !== "undefined") ? API_BASE_URL : "";
-  const url = base ? `${base.replace(/\/$/, '')}/api/auditoria` : "/api/auditoria";
+  const base = (typeof API_BASE_URL !== "undefined" && API_BASE_URL) ? API_BASE_URL.replace(/\/$/, '') : window.location.origin;
+  const url = `${base}/api/auditoria`;
 
   try {
     const res = await fetch(url, {
       headers: token ? { "Authorization": `Bearer ${token}` } : {}
     });
 
-    const payload = await parseResponse(res);
-
-    if (!res.ok) {
-      console.warn("cargarAuditoria error:", res.status, payload.__rawText || payload);
+    if (res.status === 404) {
+      console.warn(`Auditoría: 404 en ${url} — verifica que la ruta exista en el backend y el API_BASE_URL.`);
       return;
     }
 
+    const ct = res.headers.get("content-type") || "";
+    const text = await res.text();
+
+    if (!res.ok) {
+      console.warn("cargarAuditoria error:", res.status, text);
+      return;
+    }
+
+    const payload = ct.includes("application/json") ? JSON.parse(text) : { __rawText: text };
     const data = Array.isArray(payload) ? payload : (payload.data || []);
     const tbody = document.querySelector("#tablaAuditoria tbody");
     if (!tbody) return;
