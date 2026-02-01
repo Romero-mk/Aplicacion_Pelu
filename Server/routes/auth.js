@@ -1,14 +1,16 @@
-const express = require("express");
+const { Router } = require('express');
+const router = Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Usuario = require("../models/Usuario");
 
-const router = express.Router();
-
-router.post("/register", async (req, res) => {
-  const { usuario, password } = req.body;
+router.post('/register', async (req, res) => {
+  // require perezoso: asegurar que Auditoria se cargue sólo cuando se use
+  const Auditoria = require('../models/Auditoria'); // ajustar ruta si es necesario
 
   try {
+    const { usuario, password } = req.body;
+
     if (!usuario || !password) {
       return res.status(400).json({ msg: "Datos incompletos" });
     }
@@ -20,12 +22,6 @@ router.post("/register", async (req, res) => {
 
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(password, salt);
-    await new Auditoria({
-  usuario: user.usuario,
-  rol: user.rol,
-  accion: "login",
-  servicio: "N/A"
-}).save();
 
     const nuevoUsuario = new Usuario({
       usuario,
@@ -35,13 +31,21 @@ router.post("/register", async (req, res) => {
 
     await nuevoUsuario.save();
 
-    res.json({ msg: "Usuario creado correctamente" });
-    const Auditoria = require("../models/Auditoria");
+    // registrar auditoría sin bloquear
+    try {
+      await Auditoria.registrar({
+        tipo: 'registro_usuario',
+        usuario: req.body.usuario || req.body.email || 'desconocido',
+        detalle: 'Registro exitoso'
+      });
+    } catch (auditErr) {
+      console.warn('Error al registrar auditoria:', auditErr);
+    }
 
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ msg: "Error del servidor" });
+    res.status(201).json({ msg: 'Usuario registrado' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: 'Error interno' });
   }
 });
 
