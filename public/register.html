@@ -37,22 +37,19 @@
     };
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
+      const { res, parsed } = await debugFetch(`${API_BASE_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
       });
 
-      const result = await res.json();
-
       if (!res.ok) {
-        mensaje.textContent = result.msg;
+        mensaje.textContent = (parsed && parsed.msg) ? parsed.msg : (`Error ${res.status}`);
         return;
       }
 
       alert("Usuario registrado correctamente");
       window.location.href = "login.html";
-
     } catch (error) {
       mensaje.textContent = "Error del servidor";
     }
