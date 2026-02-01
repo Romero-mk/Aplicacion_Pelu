@@ -24,7 +24,7 @@
 </div>
 
 <script>
-  
+window.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById("registerForm");
   const mensaje = document.getElementById("mensaje");
 
@@ -54,6 +54,7 @@
       mensaje.textContent = "Error del servidor";
     }
   });
+});
 </script>
 
 </body>
