@@ -3,7 +3,7 @@ const router = express.Router();
 const Log = require("../models/Log");
 const jwt = require("jsonwebtoken");
 
-// Middleware para verificar JWT
+
 const verificarToken = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) {
@@ -18,7 +18,7 @@ const verificarToken = (req, res, next) => {
   }
 };
 
-// Registrar evento de auditoría
+
 router.post("/registrar", async (req, res) => {
   try {
     const { tipo, usuario, cuenta, servicio, idInvitado, detalles } = req.body;

@@ -8,13 +8,16 @@ const UsuarioSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true
+    required: false
   },
   rol: {
     type: String,
     enum: ["admin", "usuario"],
     default: "usuario"
   }
+  ,
+  proveedor: { type: String, default: null },
+  proveedorId: { type: String, default: null }
 });
 
 module.exports = mongoose.model("Usuario", UsuarioSchema);

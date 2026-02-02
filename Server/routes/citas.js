@@ -122,6 +122,67 @@ router.get("/mis-citas", verificarToken, async (req, res) => {
   }
 });
 
+// Editar una cita: solo propietario o admin, y solo si falta más de X minutos para la cita
+router.put('/:id', verificarToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const cita = await Cita.findById(id);
+    if (!cita) return res.status(404).json({ msg: 'Cita no encontrada' });
+
+    // Permiso: admin o propietario
+    if (req.usuario.rol !== 'admin' && req.usuario.usuario !== cita.usuario) {
+      return res.status(403).json({ msg: 'No tienes permiso para modificar esta cita' });
+    }
+
+    // Comprobar ventana mínima (en minutos) antes de la cita para permitir modificaciones
+    const MINUTES_BEFORE = parseInt(process.env.EDIT_WINDOW_MINUTES || '120', 10); // default 120 min
+
+    const fechaParts = cita.fecha.split('-');
+    const horaParts = cita.hora.split(':');
+    const citaDate = new Date(
+      parseInt(fechaParts[0], 10),
+      parseInt(fechaParts[1], 10) - 1,
+      parseInt(fechaParts[2], 10),
+      parseInt(horaParts[0], 10),
+      parseInt(horaParts[1], 10)
+    );
+
+    const ahora = new Date();
+    const diffMinutes = (citaDate - ahora) / (1000 * 60);
+    if (diffMinutes < MINUTES_BEFORE) {
+      return res.status(400).json({ msg: `No se puede modificar la cita dentro de ${MINUTES_BEFORE} minutos antes` });
+    }
+
+    const { cliente, telefono, servicio, fecha, hora } = req.body;
+    if (fecha && hora) {
+      // prevenir solapamiento: otra cita en la misma fecha/hora
+      const existe = await Cita.findOne({ fecha, hora, _id: { $ne: id } });
+      if (existe) return res.status(400).json({ msg: 'Esa fecha y hora ya están reservadas' });
+    }
+
+    if (cliente) cita.cliente = cliente;
+    if (telefono) cita.telefono = telefono;
+    if (servicio) cita.servicio = servicio;
+    if (fecha) cita.fecha = fecha;
+    if (hora) cita.hora = hora;
+
+    await cita.save();
+
+    // Registrar auditoria si existe
+    try {
+      const Auditoria = require('../models/Auditoria');
+      await new Auditoria({ usuario: req.usuario.usuario, rol: req.usuario.rol, accion: 'modificacion_cita', servicio: cita.servicio }).save();
+    } catch (e) {
+      console.warn('No se pudo registrar auditoria de modificación:', e.message);
+    }
+
+    res.json({ msg: 'Cita modificada' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: 'Error al modificar cita' });
+  }
+});
+
 module.exports = router;
 
 

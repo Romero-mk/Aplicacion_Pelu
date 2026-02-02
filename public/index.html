@@ -354,24 +354,24 @@
           return;
         }
 
-        // registrar auditoria (no bloqueante, con logging y Authorization si existe token)
+        
         const auditPayload = {
           tipo: "solicitud_cita",
           usuario: usuarioFinal || null,
-          rol: rol || null,          // agregar 'rol' además de 'cuenta' por si el backend lo espera
+          rol: rol || null,         
           cuenta: rol || null,
           servicio: data.servicio || null,
           idInvitado: idInvitadoFinal || null
         };
 
-        // validación ligera: no enviar si faltan campos obligatorios
+        
         if (!auditPayload.tipo || !auditPayload.usuario || !auditPayload.servicio) {
           console.warn('Auditoría: payload incompleto', auditPayload);
         } else {
           const auditHeaders = { "Content-Type": "application/json" };
           if (token) auditHeaders["Authorization"] = `Bearer ${token}`;
 
-          // envío con logging del request/response para ver el error 400
+          
           fetch(`${API_BASE_URL}/api/auditoria/registrar`, {
             method: "POST",
             headers: auditHeaders,
@@ -460,7 +460,7 @@
     }
   }
 
-  // Llamar sólo si existe la tabla (evita peticiones innecesarias en index público)
+  
   if (document.querySelector("#tablaAuditoria")) cargarAuditoria();
 </script>
 <a href="auditoria.html" id="btnAuditoria" style="display:none;" class="btn">Auditoría</a>
@@ -581,7 +581,7 @@
 
 <script>
  (function(){
-   // No redeclarar API_BASE_URL — usar la existente si está definida
+   
    const BASE = (typeof API_BASE_URL !== "undefined") ? API_BASE_URL : window.location.origin;
    console.log('Conectado a:', BASE);
    let servicioSeleccionado = null;
@@ -630,7 +630,7 @@
      }
    });
 
-   // Exponer función para uso inline (onclick)
+   
    window.abrirDetalleServicio = abrirDetalleServicio;
  })();
 </script>
@@ -642,3 +642,9 @@
 
 </body>
 </html>
+
+JWT_SECRET=tu_jwt_secret
+GOOGLE_CLIENT_ID=tu_google_client_id
+GOOGLE_CLIENT_SECRET=tu_google_client_secret
+GOOGLE_CALLBACK_URL=http://localhost:3000/api/auth/google/callback
+EDIT_WINDOW_MINUTES=120

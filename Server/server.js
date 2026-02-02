@@ -1,4 +1,5 @@
 const express = require("express");
+const passport = require('passport');
 const conectarDB = require("./config/db");
 const path = require("path"); 
 require("dotenv").config();
@@ -9,6 +10,7 @@ const app = express();
 conectarDB();
 
 app.use(express.json());
+app.use(passport.initialize());
 app.use(express.static(path.join(__dirname, "..", "public")));
 
 
