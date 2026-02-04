@@ -188,6 +188,65 @@
       transform: translateY(-50%) scale(0.95);
     }
 
+    .validation-feedback {
+      font-size: 12px;
+      margin-top: 6px;
+      display: none;
+      font-weight: 600;
+      animation: slideDown 0.3s ease;
+    }
+
+    .validation-feedback.show {
+      display: block;
+    }
+
+    .validation-feedback.valid {
+      color: #3c3;
+    }
+
+    .validation-feedback.invalid {
+      color: #c33;
+    }
+
+    .form-group input.valid {
+      border-color: #3c3;
+      background: #f0fff0;
+    }
+
+    .form-group input.invalid {
+      border-color: #c33;
+      background: #fff0f0;
+    }
+
+    .form-group input.validating {
+      border-color: #667eea;
+      background: #f0f4ff;
+    }
+
+    .validation-icon {
+      position: absolute;
+      right: 15px;
+      top: 43px;
+      font-size: 18px;
+      display: none;
+      animation: scaleIn 0.3s ease;
+    }
+
+    .validation-icon.show {
+      display: block;
+    }
+
+    @keyframes scaleIn {
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
     .form-group input:focus {
       outline: none;
       border-color: #667eea;
@@ -420,12 +479,16 @@
       <div class="form-group">
         <label for="usuario">👤 Usuario</label>
         <input type="text" id="usuario" placeholder="Ej: juan_perez" required>
+        <div class="validation-icon" id="usuarioIcon"></div>
+        <div class="validation-feedback" id="usuarioFeedback"></div>
       </div>
 
       <div class="form-group password-group">
         <label for="password">🔐 Contraseña</label>
         <input type="password" id="password" placeholder="Mínimo 6 caracteres" required>
         <button type="button" class="toggle-password" id="togglePassword" title="Mostrar/Ocultar contraseña">👁️</button>
+        <div class="validation-icon" id="passwordIcon"></div>
+        <div class="validation-feedback" id="passwordFeedback"></div>
       </div>
 
       <button type="submit" class="submit-btn" id="submitBtn">Registrar</button>
@@ -447,6 +510,105 @@ window.addEventListener('DOMContentLoaded', () => {
   const submitBtn = document.getElementById("submitBtn");
   const passwordInput = document.getElementById("password");
   const toggleBtn = document.getElementById("togglePassword");
+  const usuarioInput = document.getElementById("usuario");
+
+  // Validación en tiempo real del usuario
+  usuarioInput.addEventListener("input", () => {
+    validarUsuario();
+  });
+
+  // Validación en tiempo real de la contraseña
+  passwordInput.addEventListener("input", () => {
+    validarPassword();
+  });
+
+  function validarUsuario() {
+    const usuario = usuarioInput.value.trim();
+    const feedback = document.getElementById("usuarioFeedback");
+    const icon = document.getElementById("usuarioIcon");
+
+    if (!usuario) {
+      usuarioInput.classList.remove("valid", "invalid", "validating");
+      feedback.classList.remove("show");
+      icon.classList.remove("show");
+      return;
+    }
+
+    if (usuario.length < 3) {
+      usuarioInput.classList.remove("valid", "validating");
+      usuarioInput.classList.add("invalid");
+      feedback.textContent = "✗ Mínimo 3 caracteres";
+      feedback.classList.add("show", "invalid");
+      icon.textContent = "❌";
+      icon.classList.add("show");
+    } else if (!/^[a-zA-Z0-9_]+$/.test(usuario)) {
+      usuarioInput.classList.remove("valid", "validating");
+      usuarioInput.classList.add("invalid");
+      feedback.textContent = "✗ Solo letras, números y guiones bajos";
+      feedback.classList.add("show", "invalid");
+      icon.textContent = "❌";
+      icon.classList.add("show");
+    } else {
+      usuarioInput.classList.remove("invalid");
+      usuarioInput.classList.add("valid");
+      feedback.textContent = "✓ Usuario válido";
+      feedback.classList.add("show", "valid");
+      icon.textContent = "✅";
+      icon.classList.add("show");
+    }
+  }
+
+  function validarPassword() {
+    const password = passwordInput.value;
+    const feedback = document.getElementById("passwordFeedback");
+    const icon = document.getElementById("passwordIcon");
+
+    if (!password) {
+      passwordInput.classList.remove("valid", "invalid", "validating");
+      feedback.classList.remove("show");
+      icon.classList.remove("show");
+      return;
+    }
+
+    let fuerza = 0;
+    let mensaje = "";
+
+    if (password.length >= 6) fuerza++;
+    if (password.length >= 10) fuerza++;
+    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) fuerza++;
+    if (/\d/.test(password)) fuerza++;
+    if (/[!@#$%^&*]/.test(password)) fuerza++;
+
+    if (password.length < 6) {
+      passwordInput.classList.remove("valid", "validating");
+      passwordInput.classList.add("invalid");
+      feedback.textContent = "✗ Mínimo 6 caracteres";
+      feedback.classList.add("show", "invalid");
+      icon.textContent = "❌";
+      icon.classList.add("show");
+    } else if (fuerza <= 2) {
+      passwordInput.classList.remove("valid");
+      passwordInput.classList.add("validating");
+      feedback.textContent = "⚠ Contraseña débil (agrega mayúsculas, números o símbolos)";
+      feedback.classList.add("show", "invalid");
+      icon.textContent = "⚠️";
+      icon.classList.add("show");
+    } else if (fuerza >= 4) {
+      passwordInput.classList.remove("invalid");
+      passwordInput.classList.add("valid");
+      feedback.textContent = "✓ Contraseña fuerte";
+      feedback.classList.add("show", "valid");
+      icon.textContent = "✅";
+      icon.classList.add("show");
+    } else {
+      passwordInput.classList.remove("invalid");
+      passwordInput.classList.add("validating");
+      feedback.textContent = "⚠ Contraseña media";
+      feedback.classList.add("show", "invalid");
+      icon.textContent = "⚠️";
+      icon.classList.add("show");
+    }
+  }
 
   // Toggle mostrar/ocultar contraseña
   toggleBtn.addEventListener("click", (e) => {
@@ -463,8 +625,8 @@ window.addEventListener('DOMContentLoaded', () => {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const usuario = document.getElementById("usuario").value.trim();
-    const password = document.getElementById("password").value;
+    const usuario = usuarioInput.value.trim();
+    const password = passwordInput.value;
 
     // Validación básica
     if (!usuario || !password) {
