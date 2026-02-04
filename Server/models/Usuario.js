@@ -12,8 +12,7 @@ const UsuarioSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: false,
-    minlength: 6
+    required: false
   },
   rol: {
     type: String,
@@ -22,11 +21,13 @@ const UsuarioSchema = new mongoose.Schema({
   },
   proveedor: { 
     type: String, 
+    enum: ["local", "google", null],
     default: null 
   },
   proveedorId: { 
     type: String, 
-    default: null 
+    default: null,
+    sparse: true
   },
   createdAt: {
     type: Date,
@@ -41,11 +42,22 @@ const UsuarioSchema = new mongoose.Schema({
   collation: { locale: 'en', strength: 2 } 
 });
 
+// Pre-save hook para marcar proveedor local si tiene password
+UsuarioSchema.pre('save', function(next) {
+  if (!this.proveedor && this.password) {
+    this.proveedor = 'local';
+  }
+  next();
+});
+
 // Crear índice único con opciones correctas
 UsuarioSchema.index({ usuario: 1 }, { 
   unique: true, 
   sparse: true,
   collation: { locale: 'en', strength: 2 }
 });
+
+// Índice para proveedorId
+UsuarioSchema.index({ proveedorId: 1 }, { sparse: true });
 
 module.exports = mongoose.model("Usuario", UsuarioSchema);
