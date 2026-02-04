@@ -191,7 +191,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// Google OAuth routes
+
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
@@ -204,7 +204,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
         { expiresIn: '1h' }
       );
 
-      // Redirect to a small page that saves token into localStorage
+     
       const redirectUrl = `/oauth-success.html?token=${token}&usuario=${encodeURIComponent(user.usuario)}&rol=${user.rol}`;
       return res.redirect(redirectUrl);
     } catch (error) {
