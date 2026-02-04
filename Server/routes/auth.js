@@ -47,40 +47,78 @@ router.post('/register', async (req, res) => {
   try {
     const { usuario, password } = req.body;
 
+    
     if (!usuario || !password) {
-      return res.status(400).json({ msg: "Datos incompletos" });
+      return res.status(400).json({ msg: "Usuario y contraseña son requeridos" });
     }
 
-    const existe = await Usuario.findOne({ usuario });
+ 
+    if (usuario.length < 3) {
+      return res.status(400).json({ msg: "El usuario debe tener al menos 3 caracteres" });
+    }
+
+    if (!/^[a-zA-Z0-9_]+$/.test(usuario)) {
+      return res.status(400).json({ msg: "Usuario solo puede contener letras, números y guiones bajos" });
+    }
+
+
+    if (password.length < 6) {
+      return res.status(400).json({ msg: "La contraseña debe tener al menos 6 caracteres" });
+    }
+
+    const usuarioLower = usuario.toLowerCase();
+    const existe = await Usuario.findOne({ usuario: usuarioLower });
+    
     if (existe) {
-      return res.status(400).json({ msg: "Usuario ya existe" });
+      return res.status(400).json({ msg: "El usuario ya está registrado" });
     }
 
+    
     const salt = await bcrypt.genSalt(10);
-    const hash = await bcrypt.hash(password, salt);
+    const passwordHash = await bcrypt.hash(password, salt);
+
 
     const nuevoUsuario = new Usuario({
-      usuario,
-      password: hash,
+      usuario: usuarioLower,
+      password: passwordHash,
       rol: "usuario" 
     });
 
+   
     await nuevoUsuario.save();
 
+   
     try {
       await Auditoria.registrar({
         tipo: 'registro_usuario',
-        usuario: req.body.usuario || req.body.email || 'desconocido',
+        usuario: usuarioLower,
         detalle: 'Registro exitoso'
       });
     } catch (auditErr) {
       console.warn('Error al registrar auditoria:', auditErr);
     }
 
-    res.status(201).json({ msg: 'Usuario registrado' });
+    console.log(`✓ Usuario registrado: ${usuarioLower}`);
+    res.status(201).json({ 
+      msg: 'Usuario registrado correctamente',
+      usuario: nuevoUsuario.usuario
+    });
+    
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ msg: 'Error interno' });
+    console.error('Error en registro:', err);
+    
+   
+    if (err.name === 'ValidationError') {
+      const messages = Object.values(err.errors).map(e => e.message);
+      return res.status(400).json({ msg: messages.join(', ') });
+    }
+    
+  
+    if (err.code === 11000) {
+      return res.status(400).json({ msg: "El usuario ya está registrado" });
+    }
+    
+    res.status(500).json({ msg: 'Error al registrar usuario' });
   }
 });
 
@@ -89,17 +127,23 @@ router.post("/login", async (req, res) => {
 
   try {
     if (!usuario || !password) {
-      return res.status(400).json({ msg: "Datos incompletos" });
+      return res.status(400).json({ msg: "Usuario y contraseña son requeridos" });
     }
 
-    const user = await Usuario.findOne({ usuario });
+    const user = await Usuario.findOne({ usuario: usuario.toLowerCase() });
+    
     if (!user) {
-      return res.status(400).json({ msg: "Usuario no existe" });
+      return res.status(400).json({ msg: "Usuario o contraseña incorrectos" });
     }
 
-    const ok = await bcrypt.compare(password, user.password);
-    if (!ok) {
-      return res.status(400).json({ msg: "Contraseña incorrecta" });
+    if (!user.password) {
+      return res.status(400).json({ msg: "Este usuario no tiene contraseña configurada" });
+    }
+
+    const passwordValida = await bcrypt.compare(password, user.password);
+    
+    if (!passwordValida) {
+      return res.status(400).json({ msg: "Usuario o contraseña incorrectos" });
     }
 
     const token = jwt.sign(
@@ -108,6 +152,7 @@ router.post("/login", async (req, res) => {
       { expiresIn: "1h" }
     );
 
+    console.log(`✓ Login exitoso: ${user.usuario}`);
     res.json({
       msg: "Login exitoso",
       token,
@@ -116,7 +161,7 @@ router.post("/login", async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
+    console.error('Error en login:', error);
     res.status(500).json({ msg: "Error del servidor" });
   }
 });

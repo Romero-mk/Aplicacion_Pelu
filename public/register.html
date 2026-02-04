@@ -628,14 +628,23 @@ window.addEventListener('DOMContentLoaded', () => {
     const usuario = usuarioInput.value.trim();
     const password = passwordInput.value;
 
-    // Validación básica
+    // Validación básica del cliente
     if (!usuario || !password) {
       mostrarMensaje("Por favor completa todos los campos", "error");
       return;
     }
 
-    if (password.length < 6) {
-      mostrarMensaje("La contraseña debe tener al menos 6 caracteres", "error");
+    // Validar que el campo usuario tenga los requisitos
+    const feedbackUsuario = document.getElementById("usuarioFeedback");
+    if (!feedbackUsuario.classList.contains("valid")) {
+      mostrarMensaje("Por favor, completa correctamente el usuario", "error");
+      return;
+    }
+
+    // Validar que la contraseña sea válida
+    const feedbackPassword = document.getElementById("passwordFeedback");
+    if (feedbackPassword.classList.contains("invalid")) {
+      mostrarMensaje("La contraseña no cumple los requisitos mínimos", "error");
       return;
     }
 
@@ -649,11 +658,15 @@ window.addEventListener('DOMContentLoaded', () => {
     };
 
     try {
+      console.log("Enviando registro:", data);
+      
       const { res, parsed } = await debugFetch(`${API_BASE_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
       });
+
+      console.log("Respuesta:", res.status, parsed);
 
       if (!res.ok) {
         const errorMsg = (parsed && parsed.msg) ? parsed.msg : (`Error ${res.status}`);
@@ -664,11 +677,20 @@ window.addEventListener('DOMContentLoaded', () => {
       }
 
       mostrarMensaje("¡Usuario registrado correctamente! Redirigiendo...", "success");
+      form.reset();
+      usuarioInput.classList.remove("valid", "invalid");
+      passwordInput.classList.remove("valid", "invalid");
+      document.getElementById("usuarioFeedback").classList.remove("show");
+      document.getElementById("passwordFeedback").classList.remove("show");
+      document.getElementById("usuarioIcon").classList.remove("show");
+      document.getElementById("passwordIcon").classList.remove("show");
+      
       setTimeout(() => {
         window.location.href = "login.html";
       }, 2000);
     } catch (error) {
-      mostrarMensaje("Error del servidor. Por favor intenta más tarde", "error");
+      console.error("Error de conexión:", error);
+      mostrarMensaje("Error de conexión. Verifica que el servidor esté activo", "error");
       submitBtn.disabled = false;
       submitBtn.innerHTML = "Registrar";
     }
