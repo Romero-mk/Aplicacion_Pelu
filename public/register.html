@@ -154,6 +154,40 @@
       background: #f8f9fb;
     }
 
+    .password-group {
+      position: relative;
+    }
+
+    .password-group input {
+      padding-right: 50px;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 20px;
+      color: #667eea;
+      transition: all 0.3s ease;
+      padding: 5px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .toggle-password:hover {
+      color: #764ba2;
+      transform: translateY(-50%) scale(1.15);
+    }
+
+    .toggle-password:active {
+      transform: translateY(-50%) scale(0.95);
+    }
+
     .form-group input:focus {
       outline: none;
       border-color: #667eea;
@@ -388,9 +422,10 @@
         <input type="text" id="usuario" placeholder="Ej: juan_perez" required>
       </div>
 
-      <div class="form-group">
+      <div class="form-group password-group">
         <label for="password">🔐 Contraseña</label>
         <input type="password" id="password" placeholder="Mínimo 6 caracteres" required>
+        <button type="button" class="toggle-password" id="togglePassword" title="Mostrar/Ocultar contraseña">👁️</button>
       </div>
 
       <button type="submit" class="submit-btn" id="submitBtn">Registrar</button>
@@ -410,6 +445,20 @@ window.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById("registerForm");
   const mensaje = document.getElementById("mensaje");
   const submitBtn = document.getElementById("submitBtn");
+  const passwordInput = document.getElementById("password");
+  const toggleBtn = document.getElementById("togglePassword");
+
+  // Toggle mostrar/ocultar contraseña
+  toggleBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    const isPassword = passwordInput.type === "password";
+    passwordInput.type = isPassword ? "text" : "password";
+    toggleBtn.textContent = isPassword ? "🙈" : "👁️";
+    toggleBtn.style.animation = "none";
+    setTimeout(() => {
+      toggleBtn.style.animation = "";
+    }, 10);
+  });
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
