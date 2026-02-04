@@ -5,6 +5,7 @@ const UsuarioSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
+    sparse: true,
     lowercase: true,
     trim: true,
     minlength: 3
@@ -35,9 +36,16 @@ const UsuarioSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   }
+}, { 
+  timestamps: true,
+  collation: { locale: 'en', strength: 2 } 
 });
 
-// Índice único para evitar duplicados
-UsuarioSchema.index({ usuario: 1 }, { unique: true });
+// Crear índice único con opciones correctas
+UsuarioSchema.index({ usuario: 1 }, { 
+  unique: true, 
+  sparse: true,
+  collation: { locale: 'en', strength: 2 }
+});
 
 module.exports = mongoose.model("Usuario", UsuarioSchema);
