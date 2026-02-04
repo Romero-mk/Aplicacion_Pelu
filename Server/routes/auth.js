@@ -20,43 +20,43 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
         return done(new Error("No se pudo obtener email de Google"));
       }
 
-    // Buscar por proveedor primero
-    let user = await Usuario.findOne({ 
-      proveedorId: profile.id, 
-      proveedor: 'google' 
-    });
+      // Buscar por proveedor primero
+      let user = await Usuario.findOne({ 
+        proveedorId: profile.id, 
+        proveedor: 'google' 
+      });
 
-    if (user) {
-      // Usuario ya existe con Google
-      return done(null, user);
-    }
+      if (user) {
+        // Usuario ya existe con Google
+        return done(null, user);
+      }
 
-    // Buscar si el email ya está registrado
-    const usuarioExistente = await Usuario.findOne({ usuario: email.toLowerCase() });
-    
-    if (usuarioExistente) {
-      // Agregar Google a un usuario existente
-      usuarioExistente.proveedor = 'google';
-      usuarioExistente.proveedorId = profile.id;
-      await usuarioExistente.save();
-      return done(null, usuarioExistente);
-    }
+      // Buscar si el email ya está registrado
+      const usuarioExistente = await Usuario.findOne({ usuario: email.toLowerCase() });
+      
+      if (usuarioExistente) {
+        // Agregar Google a un usuario existente
+        usuarioExistente.proveedor = 'google';
+        usuarioExistente.proveedorId = profile.id;
+        await usuarioExistente.save();
+        return done(null, usuarioExistente);
+      }
 
-    // Crear nuevo usuario con Google
-    const nuevoUsuario = new Usuario({
-      usuario: email.toLowerCase(),
-      password: '', // Sin contraseña para usuarios de OAuth
-      rol: 'usuario',
-      proveedor: 'google',
-      proveedorId: profile.id
-    });
+      // Crear nuevo usuario con Google
+      const nuevoUsuario = new Usuario({
+        usuario: email.toLowerCase(),
+        password: '', // Sin contraseña para usuarios de OAuth
+        rol: 'usuario',
+        proveedor: 'google',
+        proveedorId: profile.id
+      });
 
-    await nuevoUsuario.save();
-    console.log(`✓ Usuario Google registrado: ${email}`);
-    return done(null, nuevoUsuario);
-    
-  } catch (err) {
-    console.error("Error en estrategia Google:", err);
+      await nuevoUsuario.save();
+      console.log(`✓ Usuario Google registrado: ${email}`);
+      return done(null, nuevoUsuario);
+      
+    } catch (err) {
+      console.error("Error en estrategia Google:", err);
       return done(err);
     }
   }));
