@@ -26,13 +26,13 @@ app.use("/api/citas", require("./routes/citas"));
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/auditoria", require("./routes/auditoria"));
 
-// Manejo de errores global
+
 app.use((err, req, res, next) => {
   console.error("Error no manejado:", err);
   res.status(500).json({ msg: "Error interno del servidor" });
 });
 
-// 404
+
 app.use((req, res) => {
   res.status(404).json({ msg: "Ruta no encontrada" });
 });
