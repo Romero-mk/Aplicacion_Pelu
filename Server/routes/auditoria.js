@@ -64,7 +64,7 @@ router.get("/historial", verificarToken, async (req, res) => {
 // Obtener estadísticas de auditoría (solo admin)
 router.get("/estadisticas", verificarToken, async (req, res) => {
   try {
-    // Verificar que sea admin
+    
     if (req.usuario.rol !== "admin") {
       return res.status(403).json({ msg: "No tienes permiso para ver estadísticas" });
     }
