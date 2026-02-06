@@ -17,9 +17,9 @@ const conectarDB = async () => {
     
     console.log("✓ MongoDB conectado correctamente");
     
-    // Limpiar índices corruptos en desarrollo
+
     if (process.env.NODE_ENV !== 'production') {
-      // mongoose.connection.collection("usuarios").collection.dropIndex("usuario_1").catch(() => {});
+      
     }
     
     return mongoose.connection;
