@@ -628,27 +628,26 @@ window.addEventListener('DOMContentLoaded', () => {
     const usuario = usuarioInput.value.trim();
     const password = passwordInput.value;
 
-    // Validación básica del cliente
+
     if (!usuario || !password) {
       mostrarMensaje("Por favor completa todos los campos", "error");
       return;
     }
 
-    // Validar que el campo usuario tenga los requisitos
+ 
     const feedbackUsuario = document.getElementById("usuarioFeedback");
     if (!feedbackUsuario.classList.contains("valid")) {
       mostrarMensaje("Por favor, completa correctamente el usuario", "error");
       return;
     }
 
-    // Validar que la contraseña sea válida
     const feedbackPassword = document.getElementById("passwordFeedback");
     if (feedbackPassword.classList.contains("invalid")) {
       mostrarMensaje("La contraseña no cumple los requisitos mínimos", "error");
       return;
     }
 
-    // Deshabilitar botón durante la petición
+ 
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="loading"></span> Registrando...';
 
