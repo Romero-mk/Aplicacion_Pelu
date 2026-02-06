@@ -122,20 +122,20 @@ router.get("/mis-citas", verificarToken, async (req, res) => {
   }
 });
 
-// Editar una cita: solo propietario o admin, y solo si falta más de X minutos para la cita
+
 router.put('/:id', verificarToken, async (req, res) => {
   try {
     const { id } = req.params;
     const cita = await Cita.findById(id);
     if (!cita) return res.status(404).json({ msg: 'Cita no encontrada' });
 
-    // Permiso: admin o propietario
+  
     if (req.usuario.rol !== 'admin' && req.usuario.usuario !== cita.usuario) {
       return res.status(403).json({ msg: 'No tienes permiso para modificar esta cita' });
     }
 
-    // Comprobar ventana mínima (en minutos) antes de la cita para permitir modificaciones
-    const MINUTES_BEFORE = parseInt(process.env.EDIT_WINDOW_MINUTES || '120', 10); // default 120 min
+
+    const MINUTES_BEFORE = parseInt(process.env.EDIT_WINDOW_MINUTES || '120', 10); 
 
     const fechaParts = cita.fecha.split('-');
     const horaParts = cita.hora.split(':');
@@ -155,7 +155,7 @@ router.put('/:id', verificarToken, async (req, res) => {
 
     const { cliente, telefono, servicio, fecha, hora } = req.body;
     if (fecha && hora) {
-      // prevenir solapamiento: otra cita en la misma fecha/hora
+     
       const existe = await Cita.findOne({ fecha, hora, _id: { $ne: id } });
       if (existe) return res.status(400).json({ msg: 'Esa fecha y hora ya están reservadas' });
     }
@@ -168,7 +168,6 @@ router.put('/:id', verificarToken, async (req, res) => {
 
     await cita.save();
 
-    // Registrar auditoria si existe
     try {
       const Auditoria = require('../models/Auditoria');
       await new Auditoria({ usuario: req.usuario.usuario, rol: req.usuario.rol, accion: 'modificacion_cita', servicio: cita.servicio }).save();
