@@ -642,7 +642,11 @@ window.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-   
+    const feedbackPassword = document.getElementById("passwordFeedback");
+    if (feedbackPassword.classList.contains("invalid")) {
+      mostrarMensaje("La contraseña no cumple los requisitos mínimos", "error");
+      return;
+    }
 
  
     submitBtn.disabled = true;
