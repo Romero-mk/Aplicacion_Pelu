@@ -42,17 +42,18 @@ const UsuarioSchema = new mongoose.Schema({
   collation: { locale: 'en', strength: 2 } 
 });
 
-// --- CORRECCIÓN AQUÍ ---
-// Cambiamos a una función async sin 'next' para evitar el TypeError
-UsuarioSchema.pre('save', async function() {
-  if (!this.proveedor && this.password) {
-    this.proveedor = 'local';
+
+usuarioSchema.pre("save", async function (next) {
+  try {
+    if (!this.isModified("password")) return next();
+
+    this.password = await bcrypt.hash(this.password, 10);
+    next();
+  } catch (error) {
+    next(error);
   }
-  // En funciones async, Mongoose entiende que al terminar la ejecución, 
-  // debe continuar con el guardado automáticamente.
 });
 
-// Crear índice único
 UsuarioSchema.index({ usuario: 1 }, { 
   unique: true, 
   sparse: true,
