@@ -4,10 +4,66 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Usuario = require("../models/Usuario");
 const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
+// Passport Google strategy (solo si está configurado)
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: process.env.GOOGLE_CALLBACK_URL || '/api/auth/google/callback'
+  }, async (accessToken, refreshToken, profile, done) => {
+    try {
+      const email = profile.emails && profile.emails[0] && profile.emails[0].value;
+      
+      if (!email) {
+        return done(new Error("No se pudo obtener email de Google"));
+      }
 
+      // Buscar por proveedor primero
+      let user = await Usuario.findOne({ 
+        proveedorId: profile.id, 
+        proveedor: 'google' 
+      });
 
+      if (user) {
+        // Usuario ya existe con Google
+        return done(null, user);
+      }
 
+      // Buscar si el email ya está registrado
+      const usuarioExistente = await Usuario.findOne({ usuario: email.toLowerCase() });
+      
+      if (usuarioExistente) {
+        // Agregar Google a un usuario existente
+        usuarioExistente.proveedor = 'google';
+        usuarioExistente.proveedorId = profile.id;
+        await usuarioExistente.save();
+        return done(null, usuarioExistente);
+      }
+
+      // Crear nuevo usuario con Google
+      const nuevoUsuario = new Usuario({
+        usuario: email.toLowerCase(),
+        password: '', // Sin contraseña para usuarios de OAuth
+        rol: 'usuario',
+        proveedor: 'google',
+        proveedorId: profile.id
+      });
+
+      await nuevoUsuario.save();
+      console.log(`✓ Usuario Google registrado: ${email}`);
+      return done(null, nuevoUsuario);
+      
+    } catch (err) {
+      console.error("Error en estrategia Google:", err);
+      return done(err);
+    }
+  }));
+  console.log('✓ Google OAuth configurado');
+} else {
+  console.warn('⚠ Google OAuth deshabilitado: Falta GOOGLE_CLIENT_ID o GOOGLE_CLIENT_SECRET');
+}
 
 router.post('/register', async (req, res) => {
 
@@ -136,6 +192,29 @@ router.post("/login", async (req, res) => {
 });
 
 
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+  router.get('/google/callback', passport.authenticate('google', { session: false, failureRedirect: '/login.html' }), async (req, res) => {
+    try {
+      const user = req.user;
+      const token = jwt.sign(
+        { id: user._id, usuario: user.usuario, rol: user.rol },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' }
+      );
+
+     
+      const redirectUrl = `/oauth-success.html?token=${token}&usuario=${encodeURIComponent(user.usuario)}&rol=${user.rol}`;
+      return res.redirect(redirectUrl);
+    } catch (error) {
+      console.error(error);
+      return res.redirect('/login.html');
+    }
+  });
+} else {
+  console.warn('⚠ Google OAuth deshabilitado: Falta GOOGLE_CLIENT_ID o GOOGLE_CLIENT_SECRET');
+}
 
 router.post("/actualizarAdmin", async (req, res) => {
   try {

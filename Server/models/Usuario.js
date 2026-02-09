@@ -42,22 +42,23 @@ const UsuarioSchema = new mongoose.Schema({
   collation: { locale: 'en', strength: 2 } 
 });
 
-// Pre-save hook para marcar proveedor local si tiene password
-UsuarioSchema.pre('save', function(next) {
+// --- CORRECCIÓN AQUÍ ---
+// Cambiamos a una función async sin 'next' para evitar el TypeError
+UsuarioSchema.pre('save', async function() {
   if (!this.proveedor && this.password) {
     this.proveedor = 'local';
   }
-  next();
+  // En funciones async, Mongoose entiende que al terminar la ejecución, 
+  // debe continuar con el guardado automáticamente.
 });
 
-// Crear índice único con opciones correctas
+// Crear índice único
 UsuarioSchema.index({ usuario: 1 }, { 
   unique: true, 
   sparse: true,
   collation: { locale: 'en', strength: 2 }
 });
 
-// Índice para proveedorId
 UsuarioSchema.index({ proveedorId: 1 }, { sparse: true });
 
 module.exports = mongoose.model("Usuario", UsuarioSchema);
