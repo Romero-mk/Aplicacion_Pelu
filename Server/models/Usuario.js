@@ -42,24 +42,22 @@ const UsuarioSchema = new mongoose.Schema({
   collation: { locale: 'en', strength: 2 } 
 });
 
-
-usuarioSchema.pre("save", async function (next) {
-  try {
-    if (!this.isModified("password")) return next();
-
-    this.password = await bcrypt.hash(this.password, 10);
-    next();
-  } catch (error) {
-    next(error);
+// Pre-save hook para marcar proveedor local si tiene password
+UsuarioSchema.pre('save', function() {
+  if (!this.proveedor && this.password) {
+    this.proveedor = 'local';
   }
+  next();
 });
 
+// Crear índice único con opciones correctas
 UsuarioSchema.index({ usuario: 1 }, { 
   unique: true, 
   sparse: true,
   collation: { locale: 'en', strength: 2 }
 });
 
+// Índice para proveedorId
 UsuarioSchema.index({ proveedorId: 1 }, { sparse: true });
 
 module.exports = mongoose.model("Usuario", UsuarioSchema);
