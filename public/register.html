@@ -559,7 +559,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function validarPassword() {
+function validarPassword() {
     const password = passwordInput.value;
     const feedback = document.getElementById("passwordFeedback");
     const icon = document.getElementById("passwordIcon");
@@ -572,42 +572,54 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     let fuerza = 0;
-    let mensaje = "";
 
+    // Cálculo de fuerza
     if (password.length >= 6) fuerza++;
     if (password.length >= 10) fuerza++;
     if (/[a-z]/.test(password) && /[A-Z]/.test(password)) fuerza++;
     if (/\d/.test(password)) fuerza++;
     if (/[!@#$%^&*]/.test(password)) fuerza++;
 
+    // LÓGICA CORREGIDA
     if (password.length < 6) {
+      // CASO 1: Muy corta (Error real)
       passwordInput.classList.remove("valid", "validating");
       passwordInput.classList.add("invalid");
       feedback.textContent = "✗ Mínimo 6 caracteres";
-      feedback.classList.add("show", "invalid");
+      feedback.className = "validation-feedback show invalid"; // Texto Rojo
       icon.textContent = "❌";
-      icon.classList.add("show");
+      icon.className = "validation-icon show";
+      
     } else if (fuerza <= 2) {
-      passwordInput.classList.remove("valid");
+      // CASO 2: Débil pero cumple longitud (Advertencia o Valido según prefieras)
+      // Aquí la marcamos como "validating" (azul/amarillo) para que no sea error rojo, 
+      // pero sugerimos mejorarla.
+      passwordInput.classList.remove("valid", "invalid");
       passwordInput.classList.add("validating");
-      feedback.textContent = "⚠ Contraseña débil (agrega mayúsculas, números o símbolos)";
-      feedback.classList.add("show", "invalid");
+      feedback.textContent = "⚠ Contraseña débil (agrega mayúsculas o números)";
+      // Usamos 'validating' o quitamos 'invalid' para que no salga roja si no hay estilo amarillo
+      // Si quieres que pase, ponle 'valid'
+      feedback.className = "validation-feedback show invalid"; 
       icon.textContent = "⚠️";
-      icon.classList.add("show");
+      icon.className = "validation-icon show";
+
     } else if (fuerza >= 4) {
-      passwordInput.classList.remove("invalid");
+      // CASO 3: Fuerte (Éxito)
+      passwordInput.classList.remove("invalid", "validating");
       passwordInput.classList.add("valid");
       feedback.textContent = "✓ Contraseña fuerte";
-      feedback.classList.add("show", "valid");
+      feedback.className = "validation-feedback show valid"; // Texto Verde
       icon.textContent = "✅";
-      icon.classList.add("show");
+      icon.className = "validation-icon show";
+
     } else {
-      passwordInput.classList.remove("invalid");
-      passwordInput.classList.add("validating");
-      feedback.textContent = "⚠ Contraseña media";
-      feedback.classList.add("show", "invalid");
-      icon.textContent = "⚠️";
-      icon.classList.add("show");
+      // CASO 4: Media (CORREGIDO: Ahora cuenta como VÁLIDA)
+      passwordInput.classList.remove("invalid", "validating");
+      passwordInput.classList.add("valid"); // Marcamos el input como válido (verde)
+      feedback.textContent = "✓ Contraseña aceptable";
+      feedback.className = "validation-feedback show valid"; // ¡IMPORTANTE! Cambiado a 'valid' (Verde)
+      icon.textContent = "✅"; // Cambiado a check
+      icon.className = "validation-icon show";
     }
   }
 
