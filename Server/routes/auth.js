@@ -136,29 +136,6 @@ router.post("/login", async (req, res) => {
 });
 
 
-if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
-  router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-
-  router.get('/google/callback', passport.authenticate('google', { session: false, failureRedirect: '/login.html' }), async (req, res) => {
-    try {
-      const user = req.user;
-      const token = jwt.sign(
-        { id: user._id, usuario: user.usuario, rol: user.rol },
-        process.env.JWT_SECRET,
-        { expiresIn: '1h' }
-      );
-
-     
-      const redirectUrl = `/oauth-success.html?token=${token}&usuario=${encodeURIComponent(user.usuario)}&rol=${user.rol}`;
-      return res.redirect(redirectUrl);
-    } catch (error) {
-      console.error(error);
-      return res.redirect('/login.html');
-    }
-  });
-} else {
-  console.warn('⚠ Google OAuth deshabilitado: Falta GOOGLE_CLIENT_ID o GOOGLE_CLIENT_SECRET');
-}
 
 router.post("/actualizarAdmin", async (req, res) => {
   try {
