@@ -43,11 +43,11 @@ const UsuarioSchema = new mongoose.Schema({
 });
 
 // Pre-save hook para marcar proveedor local si tiene password
-UsuarioSchema.pre('save', function() {
+UsuarioSchema.pre('save', async function() { 
   if (!this.proveedor && this.password) {
     this.proveedor = 'local';
   }
-  next();
+  // No necesitas llamar a next(), Mongoose sabe que terminó al llegar al final
 });
 
 // Crear índice único con opciones correctas
