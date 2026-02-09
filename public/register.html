@@ -634,7 +634,11 @@ window.addEventListener('DOMContentLoaded', () => {
       mostrarMensaje("Por favor completa todos los campos", "error");
       return;
     }
-
+  const feedbackPassword = document.getElementById("passwordFeedback");
+    if (feedbackPassword.classList.contains("invalid")) {
+      mostrarMensaje("La contraseña no cumple los requisitos mínimos", "error");
+      return;
+    }
  
     const feedbackUsuario = document.getElementById("usuarioFeedback");
     if (!feedbackUsuario.classList.contains("valid")) {
